@@ -12,7 +12,7 @@ Features:
 - Multi-source aggregation (Ticketmaster + Web)
 
 Usage:
-    from langchain_final import ConcertAgent
+    from concert_agent import ConcertAgent
 
     agent = ConcertAgent()
     results = agent.run("San Francisco, CA", weekend="next")
@@ -36,17 +36,12 @@ from .tools import (
     aggregate_concert_results
 )
 
-# Import context router from parent directory
+# Import context router from parent directory (Langchain/)
 import sys
 import os
 _parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _parent_dir not in sys.path:
     sys.path.insert(0, _parent_dir)
-
-# Also add grandparent for context_router
-_grandparent_dir = os.path.dirname(_parent_dir)
-if _grandparent_dir not in sys.path:
-    sys.path.insert(0, _grandparent_dir)
 
 from context_router import analyze_city
 
