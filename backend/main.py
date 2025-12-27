@@ -24,11 +24,24 @@ from langsmith import traceable
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from parent directory
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # Claude model for structured output
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+# =============================================================================
+# LangSmith Tracing Setup
+# =============================================================================
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGSMITH_PROJECT"] = "weekenders-app"
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
+if LANGSMITH_API_KEY:
+    os.environ["LANGSMITH_API_KEY"] = LANGSMITH_API_KEY
+    print(f"✅ LangSmith tracing enabled for project: weekenders-app")
+else:
+    print("⚠️ LANGSMITH_API_KEY not found - tracing disabled")
 
 # Results storage folder
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "results")
@@ -201,13 +214,73 @@ app.add_middleware(
 # Agent Runners
 # =============================================================================
 
+import threading
+_import_lock = threading.Lock()
+
+# Store base paths to add to each agent's import context
+_langchain_dir = os.path.join(os.path.dirname(__file__), "..", "Langchain")
+
+# Module names that are duplicated across agents and need cache clearing
+_conflicting_modules = [
+    'config', 'tools', 'date_utils',
+    'tools.ticketmaster', 'tools.web_search', 'tools.aggregation',
+    'tools.google_places', 'tools.web_sources'
+]
+
+def import_module_from_path(module_name: str, file_path: str):
+    """Safely import a module from an absolute file path.
+
+    Uses threading lock and isolated sys.path to prevent cross-contamination
+    between agents that have same-named modules (config.py, date_utils.py, etc.)
+    """
+    import importlib.util
+
+    module_dir = os.path.dirname(file_path)
+
+    # Use lock to serialize imports to prevent race conditions
+    with _import_lock:
+        # Clear cached modules that conflict between agents
+        for mod_name in list(sys.modules.keys()):
+            if any(mod_name == cm or mod_name.startswith(cm + '.')
+                   for cm in _conflicting_modules):
+                del sys.modules[mod_name]
+
+        # Save original path
+        original_path = sys.path.copy()
+
+        # Clear agent paths and set only this agent's path at the front
+        # Keep system/package paths but put agent-specific paths first
+        agent_paths = [module_dir, _langchain_dir]
+        non_agent_paths = [p for p in original_path
+                          if not p.startswith(os.path.abspath(_langchain_dir))
+                          or p == _langchain_dir]
+        sys.path = agent_paths + non_agent_paths
+
+        try:
+            spec = importlib.util.spec_from_file_location(module_name, file_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        finally:
+            # Restore original path for next import
+            sys.path = original_path
+
+    return module
+
+
 def run_concert_agent(city: str, weekend: str) -> AgentResult:
     """Run concert agent and return structured result."""
     start_time = datetime.now()
     try:
-        from concert_agent import ConcertAgent
-        agent = ConcertAgent()
+        print(f"🎵 Starting Concert Agent for {city}...")
+        concert_path = os.path.join(os.path.dirname(__file__), "..", "Langchain", "Concert Agent")
+        agent_file = os.path.join(concert_path, "concert_agent.py")
+
+        # Import from specific file path to avoid conflicts
+        concert_module = import_module_from_path("concert_agent_mod", agent_file)
+        agent = concert_module.ConcertAgent()
         result = agent.run(city, weekend=weekend)
+
+        print(f"🎵 Concert Agent found {result.total_concerts} concerts")
 
         return AgentResult(
             agent="concerts",
@@ -217,6 +290,9 @@ def run_concert_agent(city: str, weekend: str) -> AgentResult:
             run_time_seconds=(datetime.now() - start_time).total_seconds()
         )
     except Exception as e:
+        import traceback
+        print(f"❌ Concert Agent ERROR: {e}")
+        traceback.print_exc()
         return AgentResult(
             agent="concerts",
             success=False,
@@ -229,9 +305,16 @@ def run_dining_agent(city: str) -> AgentResult:
     """Run dining agent and return structured result."""
     start_time = datetime.now()
     try:
-        from dining_agent import DiningAgent
-        agent = DiningAgent()
+        print(f"🍽️ Starting Dining Agent for {city}...")
+        dining_path = os.path.join(os.path.dirname(__file__), "..", "Langchain", "Dining Agent")
+        agent_file = os.path.join(dining_path, "dining_agent.py")
+
+        # Import from specific file path to avoid conflicts
+        dining_module = import_module_from_path("dining_agent_mod", agent_file)
+        agent = dining_module.DiningAgent()
         result = agent.run(city)
+
+        print(f"🍽️ Dining Agent found {result.total_restaurants} restaurants")
 
         return AgentResult(
             agent="dining",
@@ -241,6 +324,9 @@ def run_dining_agent(city: str) -> AgentResult:
             run_time_seconds=(datetime.now() - start_time).total_seconds()
         )
     except Exception as e:
+        import traceback
+        print(f"❌ Dining Agent ERROR: {e}")
+        traceback.print_exc()
         return AgentResult(
             agent="dining",
             success=False,
@@ -253,9 +339,16 @@ def run_events_agent(city: str, weekend: str) -> AgentResult:
     """Run events agent and return structured result."""
     start_time = datetime.now()
     try:
-        from test_agent import EventsAgent
-        agent = EventsAgent()
+        print(f"🎭 Starting Events Agent for {city}...")
+        events_path = os.path.join(os.path.dirname(__file__), "..", "Langchain", "Events Agent")
+        agent_file = os.path.join(events_path, "test_agent.py")
+
+        # Import from specific file path to avoid conflicts with Locations Agent's test_agent.py
+        events_module = import_module_from_path("events_agent_mod", agent_file)
+        agent = events_module.EventsAgent()
         result = agent.run(city, weekend=weekend)
+
+        print(f"🎭 Events Agent found {result.total_events} events")
 
         return AgentResult(
             agent="events",
@@ -265,6 +358,9 @@ def run_events_agent(city: str, weekend: str) -> AgentResult:
             run_time_seconds=(datetime.now() - start_time).total_seconds()
         )
     except Exception as e:
+        import traceback
+        print(f"❌ Events Agent ERROR: {e}")
+        traceback.print_exc()
         return AgentResult(
             agent="events",
             success=False,
@@ -277,9 +373,16 @@ def run_locations_agent(city: str) -> AgentResult:
     """Run locations agent and return structured result."""
     start_time = datetime.now()
     try:
-        from test_agent import LocationsAgent
-        agent = LocationsAgent()
+        print(f"📍 Starting Locations Agent for {city}...")
+        locations_path = os.path.join(os.path.dirname(__file__), "..", "Langchain", "Locations Agent")
+        agent_file = os.path.join(locations_path, "test_agent.py")
+
+        # Import from specific file path to avoid conflicts with Events Agent's test_agent.py
+        locations_module = import_module_from_path("locations_agent_mod", agent_file)
+        agent = locations_module.LocationsAgent()
         result = agent.run(city)
+
+        print(f"📍 Locations Agent found {result.total_locations} locations")
 
         return AgentResult(
             agent="locations",
@@ -289,6 +392,9 @@ def run_locations_agent(city: str) -> AgentResult:
             run_time_seconds=(datetime.now() - start_time).total_seconds()
         )
     except Exception as e:
+        import traceback
+        print(f"❌ Locations Agent ERROR: {e}")
+        traceback.print_exc()
         return AgentResult(
             agent="locations",
             success=False,

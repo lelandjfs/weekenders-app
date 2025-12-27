@@ -26,9 +26,16 @@ from dataclasses import dataclass, asdict
 
 from langsmith import traceable
 
-# Local imports
-from .config import setup_langsmith
-from .tools import (
+# Add current directory to path for imports
+import sys
+import os
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+if _current_dir not in sys.path:
+    sys.path.insert(0, _current_dir)
+
+# Local imports (absolute, not relative)
+from config import setup_langsmith
+from tools import (
     discover_neighborhoods,
     search_google_places,
     search_web_restaurants,

@@ -26,10 +26,17 @@ from dataclasses import dataclass, asdict
 
 from langsmith import traceable
 
-# Local imports
-from .date_utils import get_concert_weekend_dates
-from .config import setup_langsmith, MAX_VENUES_TO_DISCOVER
-from .tools import (
+# Add current directory to path for imports
+import sys
+import os
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+if _current_dir not in sys.path:
+    sys.path.insert(0, _current_dir)
+
+# Local imports (absolute, not relative)
+from date_utils import get_concert_weekend_dates
+from config import setup_langsmith, MAX_VENUES_TO_DISCOVER
+from tools import (
     search_ticketmaster,
     search_web_concerts,
     discover_venues,
@@ -37,8 +44,6 @@ from .tools import (
 )
 
 # Import context router from parent directory (Langchain/)
-import sys
-import os
 _parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _parent_dir not in sys.path:
     sys.path.insert(0, _parent_dir)
