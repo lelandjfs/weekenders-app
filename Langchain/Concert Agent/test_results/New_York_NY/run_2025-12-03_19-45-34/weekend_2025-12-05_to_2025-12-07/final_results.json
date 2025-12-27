@@ -1,0 +1,217 @@
+{
+  "concerts": [
+    {
+      "name": "Lost Frequencies",
+      "venue": "Marquee",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Lauren Patten, Jasmine Forsberg, Corey Mach, Mia Gerachis, Nick Drake",
+      "venue": "The Cutting Room",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Manhattan, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Shlohmo",
+      "venue": "Market Hotel",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Harun Tekin",
+      "venue": "Drom",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Sabrina Carpenter",
+      "venue": "The Cutting Room",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Manhattan, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Christian McBride",
+      "venue": "The Village Vanguard",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Chromeo",
+      "venue": "Webster Hall",
+      "date": "2025-12-05",
+      "time": "19:30:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_KuU",
+      "source": "songkick",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "Nick Mulvey",
+      "venue": "Racket",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7pZag",
+      "source": "songkick",
+      "genre": "Other"
+    },
+    {
+      "name": "Lost Frequencies",
+      "venue": "Marquee",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "BLUE BLIND",
+      "venue": "The Bowery Electric",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "New York, NY",
+      "price_range": "$33-$33",
+      "url": "https://www.ticketweb.com/event/blue-blind-directed-produced-the-bowery-electric-tickets/14612663",
+      "source": "ticketmaster",
+      "genre": null
+    },
+    {
+      "name": "NGNY Presents: Damascus Knives, Russian Baths, Gossip Collar, DJ Ivy Oh",
+      "venue": "Berlin",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "New York, NY",
+      "price_range": "$13-$13",
+      "url": "https://www.ticketweb.com/event/ngny-presents-damascus-knives-berlin-tickets/14600483",
+      "source": "ticketmaster",
+      "genre": "Alternative"
+    },
+    {
+      "name": "Phoebe Rings, Natalie Wilson",
+      "venue": "Night Club 101",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "New York, NY",
+      "price_range": "$23-$23",
+      "url": "https://www.ticketweb.com/event/phoebe-rings-natalie-wilson-night-club-101-tickets/14443803",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Dogpark",
+      "venue": "Irving Plaza Powered By Verizon 5G",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/dogpark-new-york-new-york-12-04-2025/event/000062CCA48E4970",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "FLETCHER",
+      "venue": "Brooklyn Paramount",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/fletcher-a-one-night-only-intimate-brooklyn-new-york-12-04-2025/event/0000635330F9B6B3",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Luvcat: Lipstick & Pearls Tour",
+      "venue": "Warsaw",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/luvcat-lipstick-pearls-tour-brooklyn-new-york-12-04-2025/event/000062E88CFC2D15",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Emmet Cohen Trio",
+      "venue": "Birdland Jazz Club",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "New York, NY",
+      "price_range": "$45-$56",
+      "url": "https://www.ticketweb.com/event/emmet-cohen-trio-birdland-jazz-club-tickets/14530223",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Two Step Thursdays at Lucinda's",
+      "venue": "Lucinda's",
+      "date": "2025-12-04",
+      "time": "19:30:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/two-step-thursdays-at-lucindas-lucindas-tickets/14609513",
+      "source": "ticketmaster",
+      "genre": "Country"
+    },
+    {
+      "name": "Dvoraks New World, Bernstein & Gershwin",
+      "venue": "David Geffen Hall",
+      "date": "2025-12-04",
+      "time": "19:30:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_e0E",
+      "source": "ticketmaster",
+      "genre": "Classical"
+    },
+    {
+      "name": "The Soul Rebels & Friends Holiday Throwdown!",
+      "venue": "Blue Note Jazz Club",
+      "date": "2025-12-04",
+      "time": "20:00:00",
+      "location": "New York, NY",
+      "price_range": "$38-$54",
+      "url": "https://www.ticketweb.com/event/the-soul-rebels-friends-blue-note-jazz-club-tickets/14693853",
+      "source": "ticketmaster",
+      "genre": "R&B"
+    }
+  ],
+  "total_count": 19,
+  "date_range": "2025-12-05 to 2025-12-07",
+  "search_location": "New York City, New York, USA",
+  "search_radius_miles": 25.0
+}

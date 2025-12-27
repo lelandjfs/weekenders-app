@@ -1,0 +1,129 @@
+{
+  "concerts": [
+    {
+      "name": "Harun Tekin",
+      "venue": "Drom",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Christian McBride",
+      "venue": "Village Vanguard",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Sabrina Carpenter",
+      "venue": "The Cutting Room",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Manhattan, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Shlohmo",
+      "venue": "Market Hotel",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Lost Frequencies",
+      "venue": "Marquee, New York",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Nick Mulvey",
+      "venue": "Racket",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "BLUE BLIND",
+      "venue": "The Bowery Electric",
+      "date": "2025-12-04",
+      "time": "19:00",
+      "location": "New York, NY",
+      "price_range": "$33-$33",
+      "url": "https://www.ticketweb.com/event/blue-blind-directed-produced-the-bowery-electric-tickets/14612663",
+      "source": "ticketmaster",
+      "genre": null
+    },
+    {
+      "name": "NGNY Presents: Damascus Knives \u2022 Russian Baths \u2022 Gossip Collar \u2022 DJ Ivy Oh",
+      "venue": "Berlin",
+      "date": "2025-12-04",
+      "time": "19:00",
+      "location": "New York, NY",
+      "price_range": "$13-$13",
+      "url": "https://www.ticketweb.com/event/ngny-presents-damascus-knives-berlin-tickets/14600483",
+      "source": "ticketmaster",
+      "genre": "Alternative"
+    },
+    {
+      "name": "Phoebe Rings, Natalie Wilson",
+      "venue": "Night Club 101",
+      "date": "2025-12-04",
+      "time": "19:00",
+      "location": "New York, NY",
+      "price_range": "$23-$23",
+      "url": "https://www.ticketweb.com/event/phoebe-rings-natalie-wilson-night-club-101-tickets/14443803",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Chromeo",
+      "venue": "Webster Hall",
+      "date": "2025-12-05",
+      "time": "19:30",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_KuU",
+      "source": "ticketmaster",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "Sam Smith",
+      "venue": "Warsaw",
+      "date": "2025-12-05",
+      "time": "19:00",
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/sam-smith-to-be-free-new-brooklyn-new-york-12-05-2025/event/000062F8D581A064",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    }
+  ],
+  "total_count": 11,
+  "date_range": "2025-12-05 to 2025-12-07",
+  "search_location": "New York City, New York, USA",
+  "search_radius_miles": 25.0
+}

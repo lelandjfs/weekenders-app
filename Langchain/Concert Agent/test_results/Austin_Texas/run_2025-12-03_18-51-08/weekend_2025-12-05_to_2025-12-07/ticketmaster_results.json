@@ -1,0 +1,181 @@
+{
+  "count": 16,
+  "results": [
+    {
+      "name": "Punk Rock Karaoke w/ Get Dead",
+      "venue": "Come and Take It Live",
+      "date": "2025-12-04",
+      "time": "19:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7QA3o",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Lindsey Stirling - The Snow Waltz Tour",
+      "venue": "H-E-B Center at Cedar Park",
+      "date": "2025-12-04",
+      "time": "20:00:00",
+      "location": "Cedar Park, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/lindsey-stirling-the-snow-waltz-tour-cedar-park-texas-12-04-2025/event/3A00630CDC033F76",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Danny Brown",
+      "venue": "Emo's Austin",
+      "date": "2025-12-05",
+      "time": "19:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/danny-brown-austin-texas-12-05-2025/event/3A006336A37A2E92",
+      "source": "ticketmaster",
+      "genre": "Hip-Hop/Rap"
+    },
+    {
+      "name": "Ariel Pink",
+      "venue": "Come and Take It Live",
+      "date": "2025-12-05",
+      "time": "19:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7jtCo",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Dan Penn and Spooner Oldham w/ Theo Lawrence & Barfield the Tyrant",
+      "venue": "Antone's Nightclub",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/dan-penn-and-spooner-oldham-w-austin-texas-12-05-2025/event/3A006347A5B43BCC",
+      "source": "ticketmaster",
+      "genre": "Blues"
+    },
+    {
+      "name": "Shane Smith and the Saints",
+      "venue": "Austin City Limits Live at The Moody Theater",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_UaK",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "The Haunt",
+      "venue": "The Mohawk-Austin",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7bSFN",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Creed Fisher",
+      "venue": "Buck's Backyard (Indoor)",
+      "date": "2025-12-05",
+      "time": "20:30:00",
+      "location": "Buda, TX",
+      "price_range": "$28-$28",
+      "url": "https://www.ticketweb.com/event/creed-fisher-bucks-backyard-indoor-tickets/13937304",
+      "source": "ticketmaster",
+      "genre": "Country"
+    },
+    {
+      "name": "Underground Springhouse",
+      "venue": "Empire Control Room",
+      "date": "2025-12-05",
+      "time": "21:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/underground-springhouse-austin-texas-12-05-2025/event/3A0063434D1C9673",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Black Tiger Sex Machine (18 and Over)",
+      "venue": "The Concourse Project",
+      "date": "2025-12-05",
+      "time": "21:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7jabZ",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Jesse & Joy - El Despecho Tour",
+      "venue": "Emo's Austin",
+      "date": "2025-12-06",
+      "time": "19:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/jesse-joy-el-despecho-tour-austin-texas-12-06-2025/event/3A0062A6ADAB3114",
+      "source": "ticketmaster",
+      "genre": "Ballads/Romantic"
+    },
+    {
+      "name": "Keller Williams",
+      "venue": "Antone's Nightclub",
+      "date": "2025-12-06",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/keller-williams-austin-texas-12-06-2025/event/3A0062A8EE98B56D",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Post Animal",
+      "venue": "Brushy Street Commons",
+      "date": "2025-12-06",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7Q4Pb",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Christone Ingram w/ Mathias Lattin",
+      "venue": "Paramount Theatre-Austin",
+      "date": "2025-12-06",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7rfFN",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Voices for Gaza",
+      "venue": "Empire Control Room",
+      "date": "2025-12-06",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/voices-for-gaza-austin-texas-12-06-2025/event/3A006366437D82E0",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Stoney LaRue",
+      "venue": "Buck's Backyard (Indoor)",
+      "date": "2025-12-06",
+      "time": "20:00:00",
+      "location": "Buda, TX",
+      "price_range": "$28-$289",
+      "url": "https://www.ticketweb.com/event/stoney-larue-bucks-backyard-indoor-tickets/14637043",
+      "source": "ticketmaster",
+      "genre": "Country"
+    }
+  ]
+}

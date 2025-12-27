@@ -1,0 +1,26 @@
+{
+  "run_timestamp": "2025-12-03_19-50-11",
+  "location": "New York, NY",
+  "normalized_location": "New York City, New York, USA",
+  "area_classification": "too_large",
+  "neighborhoods": [
+    "Manhattan - Lower East Side",
+    "Brooklyn - Williamsburg",
+    "Manhattan - Chelsea",
+    "Brooklyn - DUMBO",
+    "Manhattan - Greenwich Village"
+  ],
+  "weekend_dates": "2025-12-05 to 2025-12-07",
+  "total_concerts_found": 22,
+  "sources": {
+    "ticketmaster": 17,
+    "songkick": 5,
+    "bandsintown": 0,
+    "web": 0
+  },
+  "borough_breakdown": {
+    "manhattan": 17,
+    "brooklyn": 4,
+    "queens": 0
+  }
+}

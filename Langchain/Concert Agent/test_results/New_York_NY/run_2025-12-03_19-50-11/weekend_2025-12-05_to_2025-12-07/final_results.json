@@ -1,0 +1,250 @@
+{
+  "concerts": [
+    {
+      "name": "The Great Gatsby Party",
+      "venue": "Capitale",
+      "date": "2025-12-05",
+      "time": "12:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://on.fgtix.com/trk/YbEJ",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Dvoraks New World, Bernstein & Gershwin",
+      "venue": "David Geffen Hall",
+      "date": "2025-12-05",
+      "time": "2:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_e0I",
+      "source": "ticketmaster",
+      "genre": "Classical"
+    },
+    {
+      "name": "Birdland Big Band",
+      "venue": "Birdland Jazz Club",
+      "date": "2025-12-05",
+      "time": "5:30 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/birdland-big-band-birdland-jazz-club-tickets/14530373",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "J. Roddy Walston - Christmas to the Bone Tour 2025!",
+      "venue": "Mercury Lounge",
+      "date": "2025-12-05",
+      "time": "6:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/j-roddy-walston-christmas-to-the-new-york-new-york-12-05-2025/event/0000636BB15BBA58",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Set It Off: The Self Titled Tour",
+      "venue": "Irving Plaza Powered By Verizon 5G",
+      "date": "2025-12-05",
+      "time": "6:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/set-it-off-the-self-titled-new-york-new-york-12-05-2025/event/000062EE89691081",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    },
+    {
+      "name": "The Beths with support from Illuminati Hotties",
+      "venue": "Brooklyn Paramount",
+      "date": "2025-12-05",
+      "time": "6:00 PM",
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/the-beths-with-support-from-illuminati-brooklyn-new-york-12-05-2025/event/00006297ECD3830C",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "MARKY RAMONE'S HOLIDAY BLITZKRIEG - PLAYING THE RAMONE'S CLASSICS",
+      "venue": "Gramercy Theatre",
+      "date": "2025-12-05",
+      "time": "7:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/marky-ramones-holiday-blitzkrieg-playing-the-new-york-new-york-12-05-2025/event/0000633D12663B05",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Sam Smith - To Be Free: New York City",
+      "venue": "Warsaw",
+      "date": "2025-12-05",
+      "time": "7:00 PM",
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/sam-smith-to-be-free-new-brooklyn-new-york-12-05-2025/event/000062F8D581A064",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    },
+    {
+      "name": "Elan Mehler Sextet",
+      "venue": "Birdland Theater",
+      "date": "2025-12-05",
+      "time": "7:00 PM",
+      "location": "New York, NY",
+      "price_range": "$35-$45",
+      "url": "https://www.ticketweb.com/event/elan-mehler-sextet-birdland-theater-tickets/14530383",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Night One with Victor Jones",
+      "venue": "Berlin",
+      "date": "2025-12-05",
+      "time": "7:30 PM",
+      "location": "New York, NY",
+      "price_range": "$11-$11",
+      "url": "https://www.ticketweb.com/event/night-one-with-victor-jones-berlin-tickets/14647373",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Chromeo (16+ Event)",
+      "venue": "Webster Hall",
+      "date": "2025-12-05",
+      "time": "7:30 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_KuU",
+      "source": "ticketmaster",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "BrownstoneJAZZ FEST WEEKEND CONCERT SERIES",
+      "venue": "BrownstoneJAZZ",
+      "date": "2025-12-05",
+      "time": "7:30 PM",
+      "location": "Brooklyn, NY",
+      "price_range": "$55-$55",
+      "url": "https://www.ticketweb.com/event/brownstonejazz-fest-weekend-concert-series-brownstonejazz-tickets/14254973",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "A Rock'n Holiday Spectacular",
+      "venue": "St. George Theatre",
+      "date": "2025-12-05",
+      "time": "7:30 PM",
+      "location": "Staten Island, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/a-rockn-holiday-spectacular-staten-island-new-york-12-05-2025/event/000062CCFA708F97",
+      "source": "ticketmaster",
+      "genre": "Variety"
+    },
+    {
+      "name": "Sorry",
+      "venue": "Bowery Ballroom",
+      "date": "2025-12-05",
+      "time": "8:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/sorry-new-york-new-york-12-05-2025/event/00006308CF206808",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "The Soul Rebels & Friends Holiday Throwdown!",
+      "venue": "Blue Note Jazz Club",
+      "date": "2025-12-05",
+      "time": "8:00 PM",
+      "location": "New York, NY",
+      "price_range": "$38-$54",
+      "url": "https://www.ticketweb.com/event/the-soul-rebels-friends-blue-note-jazz-club-tickets/14693873",
+      "source": "ticketmaster",
+      "genre": "R&B"
+    },
+    {
+      "name": "TOLEDO, Darryl Rahn",
+      "venue": "Night Club 101",
+      "date": "2025-12-05",
+      "time": "8:00 PM",
+      "location": "New York, NY",
+      "price_range": "$26-$26",
+      "url": "https://www.ticketweb.com/event/toledo-darryl-rahn-night-club-101-tickets/13857044",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Nick Mulvey (16 & Over)",
+      "venue": "Racket NYC",
+      "date": "2025-12-05",
+      "time": "8:00 PM",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7pZag",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Harun Tekin",
+      "venue": "Drom",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Lost Frequencies",
+      "venue": "Marquee, New York",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Shlohmo",
+      "venue": "Market Hotel",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Sabrina Carpenter",
+      "venue": "The Cutting Room",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Manhattan, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Lauren Patten, Jasmine Forsberg, Corey Mach, Mia Gerachis, Nick Drake",
+      "venue": "The Cutting Room",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Manhattan, NY",
+      "price_range": null,
+      "url": null,
+      "source": "songkick",
+      "genre": null
+    }
+  ],
+  "total_count": 22,
+  "date_range": "2025-12-05 to 2025-12-07",
+  "search_location": "New York City, New York, USA",
+  "search_radius_miles": 25.0
+}

@@ -1,0 +1,51 @@
+{
+  "source": "tavily_web_extraction",
+  "page_count": 9,
+  "pages": [
+    {
+      "page_number": 1,
+      "content_preview": "SOURCE: https://www.bandsintown.com/e/1037477638-popa-chubby-at-city-winery-new-york-city?came_from=209\n\nget app\n\nSign Up\n\nLog In\n\nSign Up\n\nLog In\n\nGet App\n\n---\n\n[Artists](https://manager.bandsintown.com)[Event Pros](https://pro.bandsintown.com)\n\n---\n\n[Help](https://help.bandsintown.com)[Privacy](https://corp.bandsintown.com/privacy)[Terms](https://corp.bandsintown.com/terms)\n\n[# Popa Chubby](https://www.bandsintown.com/a/42094-popa-chubby?came_from=209&utm_medium=web&utm_source=artist_event_pag...",
+      "content_length": 18350
+    },
+    {
+      "page_number": 2,
+      "content_preview": "SOURCE: https://www.bandsintown.com/e/1037183976-shahzad-ismaily-at-nublu-151?came_from=209\n\n![Bandsintown](data:image/svg+xml,%3csvg version='1.1' id='svg9' width='190' height='39' viewBox='0 0 190 39' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3e %3cdefs id='defs13' /%3e %3cg id='g15'%3e %3cimage width='190' height='39' preserveAspectRatio='none' style='image-rendering:optimizeQuality' xlink:href='data:image/png;base64,i...",
+      "content_length": 21064
+    },
+    {
+      "page_number": 3,
+      "content_preview": "SOURCE: https://www.songkick.com/concerts/42908525-luciano-at-webster-hall\n\n![Raw Brigade Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Jo Koy Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Joe Mande Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Billy Gibbons Concert Tickets - 2025 Tour Dates](//assets.sk-static.c...",
+      "content_length": 5704
+    },
+    {
+      "page_number": 4,
+      "content_preview": "SOURCE: https://www.songkick.com/concerts/42906013-we-used-to-cut-the-grass-at-arlenes-grocery\n\n![Raw Brigade Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Jo Koy Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Joe Mande Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Billy Gibbons Concert Tickets - 2025 Tour Dates](...",
+      "content_length": 5872
+    },
+    {
+      "page_number": 5,
+      "content_preview": "SOURCE: https://www.bandsintown.com/e/107699531-tyler-halverson-at-gottscheer-hall?came_from=253&utm_medium=web&utm_source=city_page&utm_campaign=ticket_rsvp\n\n![Bandsintown](data:image/svg+xml,%3csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3e %3cpath d='M14.9338 6.40018H8.53359V14.9338H14.9338V6.40018Z' fill='%2300CEC8'/%3e %3cpath d='M23.4664 6.40018H17.0662V14.9338H23.4664V6.40018Z' fill='%2300CEC8'/%3e %3cpath d='M32 0H25.5998V14.9328H32V0Z' f...",
+      "content_length": 3172
+    },
+    {
+      "page_number": 6,
+      "content_preview": "SOURCE: https://www.songkick.com/concerts/42857281-games-at-mehanata-bulgarian-bar\n\n![Raw Brigade Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Jo Koy Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Joe Mande Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Billy Gibbons Concert Tickets - 2025 Tour Dates](//assets.sk-...",
+      "content_length": 5025
+    },
+    {
+      "page_number": 7,
+      "content_preview": "SOURCE: https://www.bandsintown.com/e/107488432-dianne-reeves-music-at-jazz-at-lincoln-center?came_from=251&utm_medium=web&utm_source=artist_page&utm_campaign=event\n\n![Bandsintown](data:image/svg+xml,%3csvg version='1.1' id='svg9' width='190' height='39' viewBox='0 0 190 39' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3e %3cdefs id='defs13' /%3e %3cg id='g15'%3e %3cimage width='190' height='39' preserveAspectRatio='none' st...",
+      "content_length": 20306
+    },
+    {
+      "page_number": 8,
+      "content_preview": "SOURCE: https://www.bandsintown.com/e/107145912-harry-connick-jr.-at-stern-auditorium-perelman-stage-at-carnegie-hall?came_from=209\n\n![Bandsintown](data:image/svg+xml,%3csvg version='1.1' id='svg9' width='190' height='39' viewBox='0 0 190 39' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3e %3cdefs id='defs13' /%3e %3cg id='g15'%3e %3cimage width='190' height='39' preserveAspectRatio='none' style='image-rendering:optimizeQual...",
+      "content_length": 22772
+    },
+    {
+      "page_number": 9,
+      "content_preview": "SOURCE: https://www.songkick.com/concerts/42897798-early-november-at-webster-hall\n\n![Raw Brigade Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Jo Koy Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Joe Mande Concert Tickets - 2025 Tour Dates](//assets.sk-static.com/images/default_images/thumb/default-artist.png)\n![Billy Gibbons Concert Tickets - 2025 Tour Dates](//assets.sk-s...",
+      "content_length": 14281
+    }
+  ]
+}

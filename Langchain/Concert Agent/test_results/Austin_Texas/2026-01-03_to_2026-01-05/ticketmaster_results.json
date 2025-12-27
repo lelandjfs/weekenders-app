@@ -1,0 +1,50 @@
+{
+  "source": "ticketmaster",
+  "count": 4,
+  "results": [
+    {
+      "name": "Soul Man Sam",
+      "venue": "Antone's Nightclub",
+      "date": "2026-01-02",
+      "time": "21:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/soul-man-sam-austin-texas-01-02-2026/event/3A006392ED80B080",
+      "source": "ticketmaster",
+      "genre": "Blues"
+    },
+    {
+      "name": "Pain God",
+      "venue": "Empire Control Room",
+      "date": "2026-01-03",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/pain-god-austin-texas-01-03-2026/event/3A006396BCA67551",
+      "source": "ticketmaster",
+      "genre": "Metal"
+    },
+    {
+      "name": "Los Coast",
+      "venue": "Antone's Nightclub",
+      "date": "2026-01-03",
+      "time": "21:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/los-coast-austin-texas-01-03-2026/event/3A00638401B3D2FD",
+      "source": "ticketmaster",
+      "genre": "R&B"
+    },
+    {
+      "name": "Blakchyl w Nicotine & the Warm Tones, Giraffe Neck & FreeBloo&theFreak",
+      "venue": "Antone's Nightclub",
+      "date": "2026-01-04",
+      "time": "20:00:00",
+      "location": "Austin, TX",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/blakchyl-w-nicotine-the-warm-tones-austin-texas-01-04-2026/event/3A00638AD16DE8B6",
+      "source": "ticketmaster",
+      "genre": "Blues"
+    }
+  ]
+}

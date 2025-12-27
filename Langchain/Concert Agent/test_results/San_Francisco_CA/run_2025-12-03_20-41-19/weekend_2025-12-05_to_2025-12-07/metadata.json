@@ -1,0 +1,28 @@
+{
+  "run_timestamp": "2025-12-03_20-41-19",
+  "location": "San Francisco, CA",
+  "normalized_location": "San Francisco, California, USA",
+  "area_classification": "too_large",
+  "neighborhoods": [
+    "Mission District",
+    "North Beach",
+    "Hayes Valley",
+    "Marina",
+    "Castro",
+    "Haight-Ashbury"
+  ],
+  "weekend_dates": "2025-12-05 to 2025-12-07",
+  "total_concerts_found": 8,
+  "sources": {
+    "ticketmaster": 5,
+    "songkick": 2,
+    "bandsintown": 1,
+    "web": 0
+  },
+  "city_breakdown": {
+    "san_francisco": 7,
+    "oakland": 0,
+    "berkeley": 0,
+    "other_bay_area": 1
+  }
+}

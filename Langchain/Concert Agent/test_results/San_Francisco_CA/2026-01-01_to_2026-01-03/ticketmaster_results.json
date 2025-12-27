@@ -1,0 +1,226 @@
+{
+  "source": "ticketmaster",
+  "count": 20,
+  "results": [
+    {
+      "name": "Paula West New Year's Eve Concert 7pm",
+      "venue": "Feinstein's at The Nikko",
+      "date": "2025-12-31",
+      "time": "19:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$101-$101",
+      "url": "https://www.ticketweb.com/event/paula-west-new-years-eve-feinsteins-at-the-nikko-tickets/14630563",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Brian Culbertson's New Year's Celebration",
+      "venue": "Blue Note Napa",
+      "date": "2025-12-31",
+      "time": "19:00:00",
+      "location": "Napa, CA",
+      "price_range": "$132-$144",
+      "url": "https://www.ticketweb.com/event/brian-culbertsons-new-years-celebration-blue-note-napa-tickets/14564163",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "YOI TOKI [SF]: A FUTURE FUNK NEW YEAR'S EVE feat. VANTAGE (21+)",
+      "venue": "Rickshaw Stop",
+      "date": "2025-12-31",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7ra7w",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Four Tet - NYE (21+ Event)",
+      "venue": "1015 Folsom",
+      "date": "2025-12-31",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7qPbE",
+      "source": "ticketmaster",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "Swedish House Mafia (21 and Over with valid ID) - Wednesday",
+      "venue": "Pier 80 - San Francisco",
+      "date": "2025-12-31",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7qwPs",
+      "source": "ticketmaster",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "Boney James",
+      "venue": "Yoshi's Oakland",
+      "date": "2025-12-31",
+      "time": "20:00:00",
+      "location": "Oakland, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7qeJe",
+      "source": "ticketmaster",
+      "genre": "Blues"
+    },
+    {
+      "name": "New Year's Eve with Fantastic Negrito",
+      "venue": "The Chapel",
+      "date": "2025-12-31",
+      "time": "20:30:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7r8jI",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Yo La Tengo / Luna New Year's Eve 2025",
+      "venue": "The Fillmore",
+      "date": "2025-12-31",
+      "time": "21:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/yo-la-tengo-luna-new-years-san-francisco-california-12-31-2025/event/1C006336AC792B0C",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Paul Cauthen",
+      "venue": "The Independent",
+      "date": "2025-12-31",
+      "time": "21:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$145-$145",
+      "url": "https://www.ticketweb.com/event/paul-cauthen-the-independent-tickets/14632843",
+      "source": "ticketmaster",
+      "genre": "Country"
+    },
+    {
+      "name": "New Year's Eve with Tainted Love",
+      "venue": "Bimbo's 365 Club",
+      "date": "2025-12-31",
+      "time": "21:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$98-$98",
+      "url": "https://www.ticketweb.com/event/new-years-eve-with-tainted-bimbos-365-club-tickets/14641343",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Primus: Send in the Clowns - 12/31",
+      "venue": "Fox Theater - Oakland",
+      "date": "2025-12-31",
+      "time": "21:00:00",
+      "location": "Oakland, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/primus-send-in-the-clowns-1231-oakland-california-12-31-2025/event/1C006313D6B63C9F",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "CLUB HAWKINS: A STRANGER THINGS FINALE NYE PARTY",
+      "venue": "Brick and Mortar Music Hall",
+      "date": "2025-12-31",
+      "time": "21:30:00",
+      "location": "San Francisco, CA",
+      "price_range": "$11-$11",
+      "url": "https://www.ticketweb.com/event/club-hawkins-a-stranger-things-brick-and-mortar-music-hall-tickets/13987974",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "HELLA NYE w/ DJ West Coast + Shino Smoke - Hosted by Jourdan Jade",
+      "venue": "Crybaby",
+      "date": "2025-12-31",
+      "time": "22:00:00",
+      "location": "Oakland, CA",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/hella-nye-w-dj-west-crybaby-tickets/14713393",
+      "source": "ticketmaster",
+      "genre": "Hip-Hop/Rap"
+    },
+    {
+      "name": "Mustache Harbor",
+      "venue": "Cornerstone - CA",
+      "date": "2025-12-31",
+      "time": "22:00:00",
+      "location": "Berkeley, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A74xaf",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Paula West in Concert - Countdown to New Year's Eve! 10:30 show / doors at 9:30",
+      "venue": "Feinstein's at The Nikko",
+      "date": "2025-12-31",
+      "time": "22:30:00",
+      "location": "San Francisco, CA",
+      "price_range": "$138-$138",
+      "url": "https://www.ticketweb.com/event/paula-west-in-concert-feinsteins-at-the-nikko-tickets/14630573",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Brian Culbertson's New Year's Celebration",
+      "venue": "Blue Note Napa",
+      "date": "2025-12-31",
+      "time": "22:30:00",
+      "location": "Napa, CA",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/brian-culbertsons-new-years-celebration-blue-note-napa-tickets/14564143",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Boney James",
+      "venue": "Yoshi's Oakland",
+      "date": "2025-12-31",
+      "time": "23:00:00",
+      "location": "Oakland, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7qeJZ",
+      "source": "ticketmaster",
+      "genre": "Blues"
+    },
+    {
+      "name": "JUNHEE",
+      "venue": "Brick and Mortar Music Hall",
+      "date": "2026-01-02",
+      "time": "19:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$40-$274",
+      "url": "https://www.ticketweb.com/event/junhee-brick-and-mortar-music-hall-tickets/14731173",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    },
+    {
+      "name": "Nora En Pure (21+)",
+      "venue": "1015 Folsom",
+      "date": "2026-01-02",
+      "time": "22:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7rb3v",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "LIFE OF THE PARTY - Oakland First Friday w/ DJ Slappy + DJ Mousetwat +  Thow Wow",
+      "venue": "Crybaby",
+      "date": "2026-01-02",
+      "time": "22:00:00",
+      "location": "Oakland, CA",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/life-of-the-party-crybaby-tickets/13993574",
+      "source": "ticketmaster",
+      "genre": "Hip-Hop/Rap"
+    }
+  ]
+}

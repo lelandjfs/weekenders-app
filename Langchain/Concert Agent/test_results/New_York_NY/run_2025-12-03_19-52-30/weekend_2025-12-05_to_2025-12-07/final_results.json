@@ -1,0 +1,118 @@
+{
+  "concerts": [
+    {
+      "name": "Nick Mulvey",
+      "venue": "Racket NYC",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42513241-nick-mulvey-at-racket",
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Chromeo",
+      "venue": "Webster Hall",
+      "date": "2025-12-05",
+      "time": "19:30:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42699743-chromeo-at-webster-hall",
+      "source": "songkick",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "Shlohmo",
+      "venue": "Market Hotel",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42852860-shlohmo-at-market-hotel",
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Christian McBride",
+      "venue": "Village Vanguard",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42856819-christian-mcbride-at-village-vanguard",
+      "source": "songkick",
+      "genre": "Jazz"
+    },
+    {
+      "name": "The Great Gatsby Party",
+      "venue": "Capitale",
+      "date": "2025-12-05",
+      "time": "12:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://on.fgtix.com/trk/YbEJ",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Dvoraks New World, Bernstein & Gershwin",
+      "venue": "David Geffen Hall",
+      "date": "2025-12-05",
+      "time": "14:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_e0I",
+      "source": "ticketmaster",
+      "genre": "Classical"
+    },
+    {
+      "name": "Birdland Big Band",
+      "venue": "Birdland Jazz Club",
+      "date": "2025-12-05",
+      "time": "17:30:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/birdland-big-band-birdland-jazz-club-tickets/14530373",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "J. Roddy Walston - Christmas to the Bone Tour 2025!",
+      "venue": "Mercury Lounge",
+      "date": "2025-12-05",
+      "time": "18:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/j-roddy-walston-christmas-to-the-new-york-new-york-12-05-2025/event/0000636BB15BBA58",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Set It Off: The Self Titled Tour",
+      "venue": "Irving Plaza Powered By Verizon 5G",
+      "date": "2025-12-05",
+      "time": "18:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/set-it-off-the-self-titled-new-york-new-york-12-05-2025/event/000062EE89691081",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    },
+    {
+      "name": "The Beths with support from Illuminati Hotties",
+      "venue": "Brooklyn Paramount",
+      "date": "2025-12-05",
+      "time": "18:00:00",
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/the-beths-with-support-from-illuminati-brooklyn-new-york-12-05-2025/event/00006297ECD3830C",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    }
+  ],
+  "total_count": 10,
+  "date_range": "2025-12-05 to 2025-12-07",
+  "search_location": "New York City, New York, USA",
+  "search_radius_miles": 25.0
+}

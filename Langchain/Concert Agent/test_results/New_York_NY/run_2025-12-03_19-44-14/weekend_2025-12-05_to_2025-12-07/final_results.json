@@ -1,0 +1,85 @@
+{
+  "concerts": [
+    {
+      "name": "Chromeo",
+      "venue": "Webster Hall",
+      "date": "2025-12-05",
+      "time": "19:30:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42699743-chromeo-at-webster-hall",
+      "source": "songkick",
+      "genre": "Dance/Electronic"
+    },
+    {
+      "name": "Nick Mulvey",
+      "venue": "Racket NYC",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42513241-nick-mulvey-at-racket",
+      "source": "songkick",
+      "genre": "Other"
+    },
+    {
+      "name": "Shlohmo",
+      "venue": "Market Hotel",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Brooklyn, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42852860-shlohmo-at-market-hotel",
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Christian McBride",
+      "venue": "The Village Vanguard",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42856819-christian-mcbride-at-village-vanguard",
+      "source": "songkick",
+      "genre": "Jazz"
+    },
+    {
+      "name": "Harun Tekin",
+      "venue": "Drom",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42760584-harun-tekin-at-drom",
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Lost Frequencies",
+      "venue": "Marquee, New York",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "New York, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42902407-lost-frequencies-at-marquee-new-york",
+      "source": "songkick",
+      "genre": null
+    },
+    {
+      "name": "Sabrina Carpenter",
+      "venue": "The Cutting Room",
+      "date": "2025-12-05",
+      "time": null,
+      "location": "Manhattan, NY",
+      "price_range": null,
+      "url": "https://www.songkick.com/concerts/42906797-sabrina-carpenter-at-cutting-room",
+      "source": "songkick",
+      "genre": null
+    }
+  ],
+  "total_count": 7,
+  "date_range": "2025-12-05 to 2025-12-07",
+  "search_location": "New York City, New York, USA",
+  "search_radius_miles": 25.0
+}

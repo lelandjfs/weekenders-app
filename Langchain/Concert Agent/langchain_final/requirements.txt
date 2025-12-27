@@ -1,0 +1,24 @@
+# LangChain Concert Agent Dependencies
+# =====================================
+
+# Core LangChain
+langchain>=0.3.0
+langchain-core>=0.3.0
+
+# LangSmith for tracing/observability
+langsmith>=0.1.0
+
+# For tool input validation
+pydantic>=2.0.0
+
+# API requests
+requests>=2.31.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Optional: For using Anthropic models
+# langchain-anthropic>=0.1.0
+
+# Optional: For using OpenAI models
+# langchain-openai>=0.1.0

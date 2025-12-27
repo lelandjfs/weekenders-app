@@ -1,0 +1,118 @@
+{
+  "concerts": [
+    {
+      "name": "Motion City Soundtrack",
+      "venue": "Warfield",
+      "date": "2025-12-05",
+      "time": "19:30:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7bw4O",
+      "source": "ticketmaster",
+      "genre": "Alternative"
+    },
+    {
+      "name": "Jorma Kaukonen's 85th Birthday",
+      "venue": "The Masonic",
+      "date": "2025-12-05",
+      "time": "19:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/jorma-kaukonens-85th-birthday-san-francisco-california-12-05-2025/event/1C0062A7EAA34D34",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "San Fransisco Symphony - Handels Messiah",
+      "venue": "Davies Symphony Hall",
+      "date": "2025-12-05",
+      "time": "19:30:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7_Yvz",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "Eric Roberson",
+      "venue": "Blue Note Napa",
+      "date": "2025-12-05",
+      "time": "18:30:00",
+      "location": "Napa, CA",
+      "price_range": "$43-$81",
+      "url": "https://www.ticketweb.com/event/eric-roberson-blue-note-napa-tickets/14314623",
+      "source": "ticketmaster",
+      "genre": "R&B"
+    },
+    {
+      "name": "Ripple Music Label Anniversary Party",
+      "venue": "Neck of the Woods",
+      "date": "2025-12-05",
+      "time": "19:30:00",
+      "location": "San Francisco, CA",
+      "price_range": "$19-$19",
+      "url": "https://www.ticketweb.com/event/ripple-music-label-anniversary-party-neck-of-the-woods-tickets/14654213",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "KATSEYE: THE BEAUTIFUL CHAOS TOUR",
+      "venue": "The Theater at Bill Graham Civic Auditorium",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/katseye-the-beautiful-chaos-tour-san-francisco-california-12-05-2025/event/1C0062E29A2448D9",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    },
+    {
+      "name": "MGZAVREBI",
+      "venue": "Cafe Du Nord",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$20-$116",
+      "url": "https://www.ticketweb.com/event/mgzavrebi-cafe-du-nord-tickets/14723383",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    },
+    {
+      "name": "Spencer Day: Songs for a Winter's Night",
+      "venue": "Feinstein's at The Nikko",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$85-$85",
+      "url": "https://www.ticketweb.com/event/spencer-day-songs-for-a-feinsteins-at-the-nikko-tickets/14501963",
+      "source": "ticketmaster",
+      "genre": "Jazz"
+    },
+    {
+      "name": "DRUSKI: THE COULDA FEST TOUR",
+      "venue": "Chase Center",
+      "date": "2025-12-05",
+      "time": "20:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/druski-the-coulda-fest-tour-san-francisco-california-12-05-2025/event/1C0062F09574267A",
+      "source": "ticketmaster",
+      "genre": "Comedy"
+    },
+    {
+      "name": "Mdou Moctar (solo) with Nico Georis",
+      "venue": "Swedish American Hall",
+      "date": "2025-12-05",
+      "time": "21:30:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/mdou-moctar-solo-with-nico-swedish-american-hall-tickets/14629553",
+      "source": "ticketmaster",
+      "genre": "Rock"
+    }
+  ],
+  "total_count": 10,
+  "date_range": "2025-12-05 to 2025-12-07",
+  "search_location": "San Francisco, California, USA",
+  "search_radius_miles": 40.0
+}

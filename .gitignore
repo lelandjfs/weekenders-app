@@ -1,0 +1,21 @@
+# API Keys - NEVER commit
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Test outputs
+**/tests/**/run_*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

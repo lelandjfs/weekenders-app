@@ -1,0 +1,26 @@
+{
+  "test_run": {
+    "timestamp": "2025-12-01T21:07:53.223895",
+    "location": "Austin, Texas, USA",
+    "date_range": "2025-01-10 to 2025-01-17",
+    "execution_time_seconds": 22.57
+  },
+  "context": {
+    "area_classification": "appropriate_size",
+    "city_type": "medium_city",
+    "search_radius_miles": 20.0,
+    "coordinates": {
+      "lat": 30.2672,
+      "lon": -97.7431
+    }
+  },
+  "results_summary": {
+    "total_concerts": 1,
+    "ticketmaster_count": 0,
+    "web_pages_parsed": 10,
+    "source_breakdown": {
+      "ticketmaster": 0,
+      "web": 1
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "test_run": {
+    "timestamp": "2025-12-01T21:08:24.759332",
+    "location": "Palo Alto, California, USA",
+    "date_range": "2025-01-15 to 2025-01-22",
+    "execution_time_seconds": 31.53
+  },
+  "context": {
+    "area_classification": "too_small",
+    "city_type": "small_area",
+    "search_radius_miles": 40.0,
+    "coordinates": {
+      "lat": 37.4419,
+      "lon": -122.143
+    }
+  },
+  "results_summary": {
+    "total_concerts": 2,
+    "ticketmaster_count": 0,
+    "web_pages_parsed": 10,
+    "source_breakdown": {
+      "ticketmaster": 0,
+      "web": 2
+    }
+  }
+}

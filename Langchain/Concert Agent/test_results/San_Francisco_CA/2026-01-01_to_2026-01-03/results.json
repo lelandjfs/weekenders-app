@@ -1,0 +1,91 @@
+{
+  "location": "San Francisco, California, USA",
+  "start_date": "2026-01-01",
+  "end_date": "2026-01-03",
+  "total_concerts": 7,
+  "concerts": [
+    {
+      "name": "ing",
+      "venue": "Northern](Https://Www.Bandsintown.Com/V/10006536 The Great Northern?Came_From=209&Utm_Medium=Web&Utm_Source=Artist_Event_Page&Utm_Campaign=Venue)",
+      "date": "2026-01-01",
+      "time": null,
+      "location": null,
+      "price_range": null,
+      "url": "https://www.bandsintown.com/e/107361899-david-harness-at-the-great-northern?came_from=209",
+      "source": "bandsintown",
+      "genre": null
+    },
+    {
+      "name": "Moses\n\nThe Greek Theatre",
+      "venue": "Uc Berkeley](Https://Www.Bandsintown.Com/E/1037035349 Bob Moses At The Greek Theatre At Uc Berkeley?Came_From=209&Utm_Medium=Web&Utm_Source=Artist_Event_Page&Utm_Campaign=Similar_Events)",
+      "date": "2026-01-01",
+      "time": null,
+      "location": null,
+      "price_range": null,
+      "url": "https://www.bandsintown.com/e/1037114795-purplediscomachine-at-pier-80?came_from=209",
+      "source": "bandsintown",
+      "genre": null
+    },
+    {
+      "name": "# Jazz Mafia",
+      "venue": "Downtown First Thursday [View All Concerts](Https://Www.Bandsintown.Com/A/1050660 Jazz Mafia?Came_From=250&Utm_Medium=Web&Utm_Source=Artist_Event_Page&Utm_Campaign=Artist)",
+      "date": "2026-01-01",
+      "time": null,
+      "location": null,
+      "price_range": null,
+      "url": "https://bandsintown.com/e/107705801",
+      "source": "bandsintown",
+      "genre": null
+    },
+    {
+      "name": "JUNHEE",
+      "venue": "Brick and Mortar Music Hall",
+      "date": "2026-01-02",
+      "time": "19:00:00",
+      "location": "San Francisco, CA",
+      "price_range": "$40-$274",
+      "url": "https://www.ticketweb.com/event/junhee-brick-and-mortar-music-hall-tickets/14731173",
+      "source": "ticketmaster",
+      "genre": "Pop"
+    },
+    {
+      "name": "Nora En Pure (21+)",
+      "venue": "1015 Folsom",
+      "date": "2026-01-02",
+      "time": "22:00:00",
+      "location": "San Francisco, CA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7rb3v",
+      "source": "ticketmaster",
+      "genre": "Other"
+    },
+    {
+      "name": "LIFE OF THE PARTY - Oakland First Friday w/ DJ Slappy + DJ Mousetwat +  Thow Wow",
+      "venue": "Crybaby",
+      "date": "2026-01-02",
+      "time": "22:00:00",
+      "location": "Oakland, CA",
+      "price_range": null,
+      "url": "https://www.ticketweb.com/event/life-of-the-party-crybaby-tickets/13993574",
+      "source": "ticketmaster",
+      "genre": "Hip-Hop/Rap"
+    },
+    {
+      "name": "# AZ/DZ performs \"HIGHWAY TO HELL\"",
+      "venue": "The Chapel San Francisco [View All Concerts](Https://Www.Bandsintown.Com/A/1249622 Azdz (Sf)?Came_From=209&Utm_Medium=Web&Utm_Source=Artist_Event_Page&Utm_Campaign=Artist)",
+      "date": "2026-01-03",
+      "time": null,
+      "location": null,
+      "price_range": null,
+      "url": "https://www.bandsintown.com/e/107382466-azdz-(sf)-at-the-chapel?came_from=209",
+      "source": "bandsintown",
+      "genre": null
+    }
+  ],
+  "sources": {
+    "ticketmaster": 20,
+    "web_pages": 13,
+    "venues_discovered": 5
+  },
+  "execution_time_seconds": 92.199216
+}

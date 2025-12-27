@@ -1,0 +1,118 @@
+{
+  "concerts": [
+    {
+      "name": "Live music in Austin on December 15th, 2024 - Do512",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://do512.com/events/live-music/2024/12/15",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Live music in Austin on December 6th, 2024 - Do512",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://do512.com/events/live-music/2024/12/06",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Billy Strings 12/13/2024 Austin, TX - YouTube",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://www.youtube.com/watch?v=OfVm_0qzprY",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Billy Strings 12/14/2024 Austin, TX - YouTube",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://www.youtube.com/watch?v=UZ8O4UqRjao",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Live music in Austin on December 6th, 2024 - Page 2 - Do512",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://do512.com/events/live-music/2024/12/06?page=2",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Austin Concerts & Live Music | Music Events Calendar",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://www.austintexas.org/things-to-do/music/concerts-in-austin/?endDate=12%2F18%2F2024&skip=36&sort=title&startDate=12%2F12%2F2024",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Austin Concerts, Festivals, Tickets & Tour Dates 2025 & 2026",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://www.songkick.com/metro-areas/9179-us-austin",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Concerts & Events in Austin, TX - Bandsintown",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://www.bandsintown.com/c/austin-tx",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Austin Concert Tickets - Upcoming event tickets in Austin",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://www.ticketmaster.com/discover/austin?categoryId=KZFzniwnSyZfZ7v7nJ",
+      "source": "web_search",
+      "genre": null
+    },
+    {
+      "name": "Showlist Austin",
+      "venue": "See details",
+      "date": "See details",
+      "time": null,
+      "location": "Austin, Texas, USA",
+      "price_range": null,
+      "url": "https://austin.showlists.net/",
+      "source": "web_search",
+      "genre": null
+    }
+  ],
+  "total_count": 10,
+  "date_range": "2024-12-06 to 2024-12-15",
+  "search_location": "Austin, Texas, USA",
+  "search_radius_miles": 20.0
+}
