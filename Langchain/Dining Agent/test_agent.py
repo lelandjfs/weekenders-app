@@ -181,8 +181,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Test the LangChain Dining Agent")
-    parser.add_argument("city", nargs="?", default="San Francisco",
-                       help="City to search (default: San Francisco)")
+    parser.add_argument("city", help="City to search (e.g., 'Austin', 'New York')")
     parser.add_argument("--cuisine", "-c", type=str, default=None,
                        help="Cuisine type filter")
 

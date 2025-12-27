@@ -195,8 +195,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Test the LangChain Locations Agent")
-    parser.add_argument("city", nargs="?", default="San Francisco",
-                       help="City to search (default: San Francisco)")
+    parser.add_argument("city", help="City to search (e.g., 'Austin', 'Portland')")
 
     args = parser.parse_args()
 

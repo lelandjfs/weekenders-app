@@ -10,13 +10,13 @@ This module provides:
 - Full LangSmith observability
 
 Usage:
-    from langchain_final.concert_agent import ConcertAgent, run_concert_agent
+    from concert_agent import ConcertAgent, run_concert_agent
 
     agent = ConcertAgent()
-    results = agent.run("San Francisco, CA", "next")
+    results = agent.run(city, weekend)
 
 Or use date utilities directly:
-    from langchain_final.date_utils import get_concert_weekend_dates
+    from date_utils import get_concert_weekend_dates
 """
 
 # Import date utilities (no external dependencies)

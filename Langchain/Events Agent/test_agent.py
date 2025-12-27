@@ -202,8 +202,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Test the LangChain Events Agent")
-    parser.add_argument("city", nargs="?", default="San Francisco",
-                       help="City to search (default: San Francisco)")
+    parser.add_argument("city", help="City to search (e.g., 'Austin', 'Sacramento')")
     parser.add_argument("--weekend", "-w", type=str, default="next",
                        choices=["this", "next"],
                        help="Which weekend (default: next)")
