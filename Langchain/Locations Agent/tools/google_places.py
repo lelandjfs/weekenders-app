@@ -10,6 +10,7 @@ import requests
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from langsmith import traceable
 
 import sys
 import os
@@ -37,6 +38,7 @@ class GooglePlacesAttractionsInput(BaseModel):
 
 
 @tool(args_schema=GooglePlacesAttractionsInput)
+@traceable(name="google_places_attractions_api", run_type="tool")
 def search_google_places_attractions(
     city: str,
     attraction_types: List[str] = None

@@ -10,6 +10,7 @@ import requests
 from typing import List, Set
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from langsmith import traceable
 
 import sys
 import os
@@ -32,6 +33,7 @@ class WebSearchInput(BaseModel):
 
 
 @tool(args_schema=WebSearchInput)
+@traceable(name="tavily_web_restaurants_api", run_type="tool")
 def search_web_restaurants(
     city: str,
     neighborhoods: List[str] = None

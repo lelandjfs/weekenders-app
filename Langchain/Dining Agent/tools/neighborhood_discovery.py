@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
+from langsmith import traceable
 
 import sys
 import os
@@ -30,6 +31,7 @@ class NeighborhoodDiscoveryInput(BaseModel):
 
 
 @tool(args_schema=NeighborhoodDiscoveryInput)
+@traceable(name="discover_neighborhoods_api", run_type="tool")
 def discover_neighborhoods(city: str, max_neighborhoods: int = 5) -> List[str]:
     """
     Discover trendy food neighborhoods in a city.

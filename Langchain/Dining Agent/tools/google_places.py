@@ -9,6 +9,7 @@ import requests
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from langsmith import traceable
 
 import sys
 import os
@@ -36,6 +37,7 @@ class GooglePlacesInput(BaseModel):
 
 
 @tool(args_schema=GooglePlacesInput)
+@traceable(name="google_places_restaurants_api", run_type="tool")
 def search_google_places(
     city: str,
     neighborhoods: List[str] = None,
@@ -55,27 +57,27 @@ def search_google_places(
     all_restaurants = []
     seen_places = set()
 
-    # Build search queries
+    # Build search queries as (query_string, neighborhood_name) tuples
     queries = []
 
     if neighborhoods:
         for hood in neighborhoods:
             if cuisine_type:
-                queries.append(f"best {cuisine_type} restaurants in {hood}, {city}")
+                queries.append((f"best {cuisine_type} restaurants in {hood}, {city}", hood))
             else:
-                queries.append(f"best restaurants in {hood}, {city}")
+                queries.append((f"best restaurants in {hood}, {city}", hood))
     else:
         # City-wide search
         if cuisine_type:
-            queries.append(f"best {cuisine_type} restaurants in {city}")
+            queries.append((f"best {cuisine_type} restaurants in {city}", None))
         else:
-            queries.append(f"best restaurants in {city}")
-            queries.append(f"highly rated restaurants in {city}")
-            queries.append(f"popular restaurants in {city}")
+            queries.append((f"best restaurants in {city}", None))
+            queries.append((f"highly rated restaurants in {city}", None))
+            queries.append((f"popular restaurants in {city}", None))
 
     print(f"   → Searching Google Places ({len(queries)} queries)...")
 
-    for query in queries:
+    for query, hood in queries:
         results = _search_places_text(query, MAX_RESULTS_PER_NEIGHBORHOOD)
 
         for place in results:
@@ -91,7 +93,7 @@ def search_google_places(
 
             if rating >= MIN_RATING and review_count >= MIN_REVIEWS:
                 seen_places.add(place_id)
-                formatted = _format_place(place)
+                formatted = _format_place(place, hood)
                 all_restaurants.append(formatted)
 
     print(f"   ✅ Found {len(all_restaurants)} restaurants from Google Places")
@@ -126,7 +128,7 @@ def _search_places_text(query: str, max_results: int = 10) -> List[Dict]:
         return []
 
 
-def _format_place(place: Dict) -> Dict[str, Any]:
+def _format_place(place: Dict, search_neighborhood: str = None) -> Dict[str, Any]:
     """Format a Google Places result into our standard structure."""
     display_name = place.get("displayName", {})
     name = display_name.get("text", "Unknown")
@@ -135,9 +137,10 @@ def _format_place(place: Dict) -> Dict[str, Any]:
     price_level = place.get("priceLevel")
     price_str = _format_price_level(price_level)
 
-    # Extract neighborhood from address
+    # Use the neighborhood from the search query if available,
+    # otherwise try to extract from address
     address = place.get("formattedAddress", "")
-    neighborhood = _extract_neighborhood_from_address(address)
+    neighborhood = search_neighborhood or _extract_neighborhood_from_address(address)
 
     # Get opening hours
     hours = place.get("regularOpeningHours", {})

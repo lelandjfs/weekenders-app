@@ -10,6 +10,7 @@ import requests
 from typing import List, Set
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from langsmith import traceable
 
 import sys
 import os
@@ -30,6 +31,7 @@ class WebSearchEventsInput(BaseModel):
 
 
 @tool(args_schema=WebSearchEventsInput)
+@traceable(name="tavily_web_events_api", run_type="tool")
 def search_web_events(
     city: str,
     start_date: str,

@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
+from langsmith import traceable
 
 import sys
 import os
@@ -36,6 +37,7 @@ class AggregationInput(BaseModel):
 
 
 @tool(args_schema=AggregationInput)
+@traceable(name="aggregate_restaurants_llm", run_type="chain")
 def aggregate_restaurants(
     google_places_results: List[Dict[str, Any]],
     web_page_contents: List[str],

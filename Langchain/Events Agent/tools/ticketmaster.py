@@ -10,6 +10,7 @@ import requests
 from typing import List, Dict, Optional
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from langsmith import traceable
 
 import sys
 import os
@@ -34,6 +35,7 @@ class TicketmasterEventsInput(BaseModel):
 
 
 @tool(args_schema=TicketmasterEventsInput)
+@traceable(name="ticketmaster_events_api", run_type="tool")
 def search_ticketmaster_events(
     city: str,
     start_date: str,
@@ -92,8 +94,8 @@ def _search_classification(
     latitude: float,
     longitude: float,
     radius_miles: int,
-    start_date: str,
-    end_date: str,
+    utc_start: str,
+    utc_end: str,
     classification_id: str,
     classification_name: str
 ) -> List[Dict]:
@@ -106,8 +108,8 @@ def _search_classification(
         "latlong": f"{latitude},{longitude}",
         "radius": radius_miles,
         "unit": "miles",
-        "startDateTime": f"{start_date}T00:00:00Z",
-        "endDateTime": f"{end_date}T23:59:59Z",
+        "startDateTime": utc_start,
+        "endDateTime": utc_end,
         "sort": "date,asc",
         "size": TICKETMASTER_RESULTS_LIMIT
     }

@@ -12,6 +12,7 @@ import requests
 from typing import List, Set
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from langsmith import traceable
 
 import sys
 import os
@@ -30,6 +31,7 @@ class WebSearchLocationsInput(BaseModel):
 
 
 @tool(args_schema=WebSearchLocationsInput)
+@traceable(name="tavily_web_locations_api", run_type="tool")
 def search_web_locations(city: str) -> List[str]:
     """
     Search web sources for hidden gems and local attractions.
