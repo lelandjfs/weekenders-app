@@ -12,6 +12,8 @@ const WeekenderApp = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [hasResults, setHasResults] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeError, setSubscribeError] = useState('');
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSubscribeCitySuggestions, setShowSubscribeCitySuggestions] = useState(false);
@@ -187,9 +189,33 @@ const WeekenderApp = () => {
     }
   };
 
-  const handleSubscribe = () => {
-    if (subscribeEmail && subscribeCity) {
-      setSubscribed(true);
+  const handleSubscribe = async () => {
+    if (!subscribeEmail || !subscribeCity) return;
+
+    setIsSubscribing(true);
+    setSubscribeError('');
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: subscribeEmail,
+          city: subscribeCity
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubscribed(true);
+      } else {
+        setSubscribeError(data.message || data.error || 'Something went wrong');
+      }
+    } catch (error) {
+      setSubscribeError('Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubscribing(false);
     }
   };
 
@@ -479,6 +505,7 @@ const WeekenderApp = () => {
                   
                   <button
                     onClick={handleSubscribe}
+                    disabled={isSubscribing || !subscribeEmail || !subscribeCity}
                     style={{
                       width: '100%',
                       padding: '18px 24px',
@@ -486,24 +513,55 @@ const WeekenderApp = () => {
                       fontWeight: '600',
                       border: 'none',
                       borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #FF6B35 0%, #FF8F5F 100%)',
-                      color: '#FAFAFA',
-                      cursor: 'pointer',
+                      background: (isSubscribing || !subscribeEmail || !subscribeCity)
+                        ? 'rgba(255,255,255,0.1)'
+                        : 'linear-gradient(135deg, #FF6B35 0%, #FF8F5F 100%)',
+                      color: (isSubscribing || !subscribeEmail || !subscribeCity)
+                        ? 'rgba(255,255,255,0.3)'
+                        : '#FAFAFA',
+                      cursor: (isSubscribing || !subscribeEmail || !subscribeCity)
+                        ? 'not-allowed'
+                        : 'pointer',
                       transition: 'transform 0.2s, box-shadow 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 24px rgba(255,107,53,0.3)';
+                      if (!isSubscribing && subscribeEmail && subscribeCity) {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 8px 24px rgba(255,107,53,0.3)';
+                      }
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.transform = 'translateY(0)';
                       e.target.style.boxShadow = 'none';
                     }}
                   >
-                    Subscribe to Weekly Digest
+                    {isSubscribing ? (
+                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                        <span style={{
+                          width: '18px',
+                          height: '18px',
+                          border: '2px solid rgba(255,255,255,0.3)',
+                          borderTopColor: '#FAFAFA',
+                          borderRadius: '50%',
+                          animation: 'spin 0.8s linear infinite',
+                        }} />
+                        Subscribing...
+                      </span>
+                    ) : 'Subscribe to Weekly Digest'}
                   </button>
+
+                  {subscribeError && (
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#F87171',
+                      marginTop: '12px',
+                      textAlign: 'center',
+                    }}>
+                      {subscribeError}
+                    </p>
+                  )}
                 </div>
-                
+
                 <p style={{
                   fontSize: '13px',
                   color: 'rgba(255,255,255,0.3)',
