@@ -4,8 +4,13 @@ Redis Cache for Weekender
 
 Caches API responses to avoid redundant calls and failures.
 TTL: 3 days
+
+Supports:
+- Upstash Redis (via REDIS_URL env var)
+- Local Redis (localhost:6379 fallback)
 """
 
+import os
 import json
 import redis
 import hashlib
@@ -14,27 +19,53 @@ from datetime import timedelta
 
 # Redis connection
 _redis_client = None
+_connection_attempted = False
 
 CACHE_TTL = timedelta(days=3)
 
 
 def get_redis() -> redis.Redis:
     """Get Redis client (lazy initialization)."""
-    global _redis_client
-    if _redis_client is None:
-        _redis_client = redis.Redis(
-            host='localhost',
-            port=6379,
-            db=0,
-            decode_responses=True
-        )
-        # Test connection
-        try:
+    global _redis_client, _connection_attempted
+
+    if _connection_attempted:
+        return _redis_client
+
+    _connection_attempted = True
+
+    # Check for Upstash/cloud Redis URL first
+    redis_url = os.getenv("REDIS_URL") or os.getenv("UPSTASH_REDIS_URL")
+
+    try:
+        if redis_url:
+            # Cloud Redis (Upstash, etc.)
+            _redis_client = redis.from_url(
+                redis_url,
+                decode_responses=True,
+                socket_timeout=5,
+                socket_connect_timeout=5
+            )
             _redis_client.ping()
-            print("   [Cache] Redis connected")
-        except redis.ConnectionError:
-            print("   [Cache] Redis not available - caching disabled")
-            _redis_client = None
+            print("   [Cache] Connected to cloud Redis")
+        else:
+            # Local Redis fallback
+            _redis_client = redis.Redis(
+                host='localhost',
+                port=6379,
+                db=0,
+                decode_responses=True,
+                socket_timeout=5,
+                socket_connect_timeout=5
+            )
+            _redis_client.ping()
+            print("   [Cache] Connected to local Redis")
+    except (redis.ConnectionError, redis.TimeoutError) as e:
+        print(f"   [Cache] Redis not available - caching disabled ({e})")
+        _redis_client = None
+    except Exception as e:
+        print(f"   [Cache] Redis error - caching disabled ({e})")
+        _redis_client = None
+
     return _redis_client
 
 

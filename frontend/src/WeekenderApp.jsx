@@ -1027,7 +1027,38 @@ const WeekenderApp = () => {
                     New Search
                   </button>
                 </div>
-                
+
+                {/* Error Banner */}
+                {results?.errors && results.errors.length > 0 && (
+                  <div style={{
+                    background: 'rgba(251,191,36,0.1)',
+                    border: '1px solid rgba(251,191,36,0.3)',
+                    borderRadius: '12px',
+                    padding: '16px 20px',
+                    marginBottom: '24px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                  }}>
+                    <span style={{ color: '#FBBF24', fontSize: '18px' }}>⚠</span>
+                    <div>
+                      <p style={{
+                        color: '#FBBF24',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        marginBottom: '4px'
+                      }}>
+                        {results.errors.some(e => e.type === 'rate_limit')
+                          ? 'Some sources hit rate limits'
+                          : 'Some sources unavailable'}
+                      </p>
+                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
+                        {results.errors.map(e => e.source).join(', ')} — results may be incomplete
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Category Filters */}
                 <div style={{
                   display: 'flex',

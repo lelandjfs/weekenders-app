@@ -143,13 +143,19 @@ TOOLS = _import_tools()
 # Fetch Functions (with caching)
 # =============================================================================
 
+def _is_rate_limit(error: Exception) -> bool:
+    """Check if error is a rate limit."""
+    err_str = str(error).lower()
+    return any(x in err_str for x in ['429', 'rate limit', 'too many requests', 'quota'])
+
+
 @traceable(name="fetch_concerts", run_type="tool", metadata={"category": "concerts"})
-def fetch_concerts(city: str, lat: float, lon: float, start_date: str, end_date: str) -> list:
-    """Fetch concerts from Ticketmaster."""
+def fetch_concerts(city: str, lat: float, lon: float, start_date: str, end_date: str) -> dict:
+    """Fetch concerts from Ticketmaster. Returns dict with data and error info."""
     cache_key = "concerts"
     cached = get_cached(cache_key, city, start_date, end_date)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Ticketmaster"}
 
     print(f"   [Concerts] Fetching from Ticketmaster...")
     try:
@@ -162,19 +168,20 @@ def fetch_concerts(city: str, lat: float, lon: float, start_date: str, end_date:
             "end_date": utc_end
         })
         set_cached(cache_key, city, results, start_date, end_date)
-        return results
+        return {"data": results, "error": None, "source": "Ticketmaster"}
     except Exception as e:
         print(f"   [Concerts] Error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Ticketmaster"}
 
 
 @traceable(name="fetch_events_ticketmaster", run_type="tool", metadata={"category": "events"})
-def fetch_events_ticketmaster(city: str, lat: float, lon: float, start_date: str, end_date: str) -> list:
+def fetch_events_ticketmaster(city: str, lat: float, lon: float, start_date: str, end_date: str) -> dict:
     """Fetch events from Ticketmaster."""
     cache_key = "events_tm"
     cached = get_cached(cache_key, city, start_date, end_date)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Ticketmaster"}
 
     print(f"   [Events] Fetching from Ticketmaster...")
     try:
@@ -186,19 +193,20 @@ def fetch_events_ticketmaster(city: str, lat: float, lon: float, start_date: str
             "radius_miles": 20
         })
         set_cached(cache_key, city, results, start_date, end_date)
-        return results
+        return {"data": results, "error": None, "source": "Ticketmaster"}
     except Exception as e:
         print(f"   [Events] Ticketmaster error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Ticketmaster"}
 
 
 @traceable(name="fetch_events_web", run_type="tool", metadata={"category": "events"})
-def fetch_events_web(city: str, start_date: str, end_date: str) -> list:
-    """Fetch events from web sources."""
+def fetch_events_web(city: str, start_date: str, end_date: str) -> dict:
+    """Fetch events from web sources (Tavily)."""
     cache_key = "events_web"
     cached = get_cached(cache_key, city, start_date, end_date)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Web Search"}
 
     print(f"   [Events] Fetching from web sources...")
     try:
@@ -208,15 +216,16 @@ def fetch_events_web(city: str, start_date: str, end_date: str) -> list:
             "end_date": end_date
         })
         set_cached(cache_key, city, results, start_date, end_date)
-        return results
+        return {"data": results, "error": None, "source": "Web Search"}
     except Exception as e:
         print(f"   [Events] Web error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Web Search"}
 
 
 @traceable(name="fetch_neighborhoods", run_type="tool", metadata={"category": "dining"})
 def fetch_neighborhoods(city: str) -> list:
-    """Fetch neighborhoods."""
+    """Fetch neighborhoods (internal, no error tracking needed)."""
     cache_key = "neighborhoods"
     cached = get_cached(cache_key, city)
     if cached is not None:
@@ -236,12 +245,12 @@ def fetch_neighborhoods(city: str) -> list:
 
 
 @traceable(name="fetch_restaurants_google", run_type="tool", metadata={"category": "dining"})
-def fetch_restaurants_google(city: str, neighborhoods: list) -> list:
+def fetch_restaurants_google(city: str, neighborhoods: list) -> dict:
     """Fetch restaurants from Google Places."""
     cache_key = "restaurants_google"
     cached = get_cached(cache_key, city)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Google Places"}
 
     print(f"   [Dining] Fetching from Google Places...")
     try:
@@ -250,19 +259,20 @@ def fetch_restaurants_google(city: str, neighborhoods: list) -> list:
             "neighborhoods": neighborhoods or []
         })
         set_cached(cache_key, city, results)
-        return results
+        return {"data": results, "error": None, "source": "Google Places"}
     except Exception as e:
         print(f"   [Dining] Google Places error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Google Places"}
 
 
 @traceable(name="fetch_restaurants_web", run_type="tool", metadata={"category": "dining"})
-def fetch_restaurants_web(city: str, neighborhoods: list) -> list:
-    """Fetch restaurants from web sources."""
+def fetch_restaurants_web(city: str, neighborhoods: list) -> dict:
+    """Fetch restaurants from web sources (Eater, Infatuation, Reddit)."""
     cache_key = "restaurants_web"
     cached = get_cached(cache_key, city)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Web Search"}
 
     print(f"   [Dining] Fetching from web sources...")
     try:
@@ -271,19 +281,20 @@ def fetch_restaurants_web(city: str, neighborhoods: list) -> list:
             "neighborhoods": neighborhoods or []
         })
         set_cached(cache_key, city, results)
-        return results
+        return {"data": results, "error": None, "source": "Web Search"}
     except Exception as e:
         print(f"   [Dining] Web error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Web Search"}
 
 
 @traceable(name="fetch_locations_google", run_type="tool", metadata={"category": "locations"})
-def fetch_locations_google(city: str) -> list:
+def fetch_locations_google(city: str) -> dict:
     """Fetch locations from Google Places."""
     cache_key = "locations_google"
     cached = get_cached(cache_key, city)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Google Places"}
 
     print(f"   [Locations] Fetching from Google Places...")
     try:
@@ -291,19 +302,20 @@ def fetch_locations_google(city: str) -> list:
             "city": city
         })
         set_cached(cache_key, city, results)
-        return results
+        return {"data": results, "error": None, "source": "Google Places"}
     except Exception as e:
         print(f"   [Locations] Google Places error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Google Places"}
 
 
 @traceable(name="fetch_locations_web", run_type="tool", metadata={"category": "locations"})
-def fetch_locations_web(city: str) -> list:
-    """Fetch locations from web sources."""
+def fetch_locations_web(city: str) -> dict:
+    """Fetch locations from web sources (Atlas Obscura, Reddit)."""
     cache_key = "locations_web"
     cached = get_cached(cache_key, city)
     if cached is not None:
-        return cached
+        return {"data": cached, "error": None, "source": "Web Search"}
 
     print(f"   [Locations] Fetching from web sources...")
     try:
@@ -311,10 +323,11 @@ def fetch_locations_web(city: str) -> list:
             "city": city
         })
         set_cached(cache_key, city, results)
-        return results
+        return {"data": results, "error": None, "source": "Web Search"}
     except Exception as e:
         print(f"   [Locations] Web error: {e}")
-        return []
+        error_type = "rate_limit" if _is_rate_limit(e) else "error"
+        return {"data": [], "error": {"type": error_type, "message": str(e)}, "source": "Web Search"}
 
 
 # =============================================================================
@@ -385,6 +398,20 @@ def aggregate_locations_data(google_results: list, web_results: list, city: str)
 # Main Runner
 # =============================================================================
 
+def _extract_data_and_errors(fetch_result: dict, errors_list: list) -> list:
+    """Extract data from fetch result and collect any errors."""
+    if isinstance(fetch_result, dict) and "data" in fetch_result:
+        if fetch_result.get("error"):
+            errors_list.append({
+                "source": fetch_result.get("source", "Unknown"),
+                "type": fetch_result["error"].get("type", "error"),
+                "message": fetch_result["error"].get("message", "Unknown error")
+            })
+        return fetch_result.get("data", [])
+    # Backwards compat for functions that return raw lists
+    return fetch_result if isinstance(fetch_result, list) else []
+
+
 @traceable(name="weekender_pipeline", run_type="chain")
 def run_all_agents(city: str, weekend: str = "next") -> dict:
     """Run all data fetching in parallel, then aggregate."""
@@ -431,8 +458,7 @@ def run_all_agents(city: str, weekend: str = "next") -> dict:
                 fetch_results[name] = future.result()
             except Exception as e:
                 print(f"   Error in {name}: {e}")
-                fetch_results[name] = []
-                results["errors"].append({"source": name, "error": str(e)})
+                fetch_results[name] = {"data": [], "error": {"type": "error", "message": str(e)}, "source": name}
 
     # Fetch restaurants after neighborhoods (needs neighborhoods as input)
     neighborhoods = fetch_results.get("neighborhoods", [])
@@ -449,46 +475,55 @@ def run_all_agents(city: str, weekend: str = "next") -> dict:
                 fetch_results[name] = future.result()
             except Exception as e:
                 print(f"   Error in {name}: {e}")
-                fetch_results[name] = []
+                fetch_results[name] = {"data": [], "error": {"type": "error", "message": str(e)}, "source": name}
+
+    # Extract data and collect errors
+    concerts_data = _extract_data_and_errors(fetch_results.get("concerts", {}), results["errors"])
+    events_tm_data = _extract_data_and_errors(fetch_results.get("events_tm", {}), results["errors"])
+    events_web_data = _extract_data_and_errors(fetch_results.get("events_web", {}), results["errors"])
+    restaurants_google_data = _extract_data_and_errors(fetch_results.get("restaurants_google", {}), results["errors"])
+    restaurants_web_data = _extract_data_and_errors(fetch_results.get("restaurants_web", {}), results["errors"])
+    locations_google_data = _extract_data_and_errors(fetch_results.get("locations_google", {}), results["errors"])
+    locations_web_data = _extract_data_and_errors(fetch_results.get("locations_web", {}), results["errors"])
 
     # Phase 2: Aggregation
     print("\n   Phase 2: Aggregating results...")
 
     # Concerts (no aggregation needed - already clean from Ticketmaster)
-    results["concerts"] = fetch_results.get("concerts", [])
+    results["concerts"] = concerts_data
 
     # Events aggregation
     try:
         results["events"] = aggregate_events_data(
-            fetch_results.get("events_tm", []),
-            fetch_results.get("events_web", []),
+            events_tm_data,
+            events_web_data,
             city, start_date, end_date
         )
     except Exception as e:
-        results["errors"].append({"agent": "events", "error": str(e)})
-        results["events"] = fetch_results.get("events_tm", [])
+        results["errors"].append({"source": "Events Aggregation", "type": "error", "message": str(e)})
+        results["events"] = events_tm_data
 
     # Dining aggregation
     try:
         results["dining"] = aggregate_restaurants_data(
-            fetch_results.get("restaurants_google", []),
-            fetch_results.get("restaurants_web", []),
+            restaurants_google_data,
+            restaurants_web_data,
             city, neighborhoods
         )
     except Exception as e:
-        results["errors"].append({"agent": "dining", "error": str(e)})
-        results["dining"] = fetch_results.get("restaurants_google", [])
+        results["errors"].append({"source": "Dining Aggregation", "type": "error", "message": str(e)})
+        results["dining"] = restaurants_google_data
 
     # Locations aggregation
     try:
         results["locations"] = aggregate_locations_data(
-            fetch_results.get("locations_google", []),
-            fetch_results.get("locations_web", []),
+            locations_google_data,
+            locations_web_data,
             city
         )
     except Exception as e:
-        results["errors"].append({"agent": "locations", "error": str(e)})
-        results["locations"] = fetch_results.get("locations_google", [])
+        results["errors"].append({"source": "Locations Aggregation", "type": "error", "message": str(e)})
+        results["locations"] = locations_google_data
 
     return results
 
