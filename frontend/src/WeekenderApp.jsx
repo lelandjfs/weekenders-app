@@ -11,6 +11,8 @@ const WeekenderApp = () => {
   const [subscribeCity, setSubscribeCity] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [hasResults, setHasResults] = useState(false);
+  const [searchError, setSearchError] = useState('');
+  const [results, setResults] = useState(null);
   const [subscribed, setSubscribed] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [subscribeError, setSubscribeError] = useState('');
@@ -179,13 +181,37 @@ const WeekenderApp = () => {
     ]
   };
 
-  const handleSearch = () => {
-    if (searchCity) {
-      setIsSearching(true);
-      setTimeout(() => {
-        setIsSearching(false);
+  const handleSearch = async () => {
+    if (!searchCity) return;
+
+    setIsSearching(true);
+    setSearchError('');
+
+    // Map date option to weekend param
+    const weekendParam = searchDate === 'next-weekend' ? 'next' : 'this';
+
+    try {
+      const response = await fetch('https://weekenders-app.onrender.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: searchCity.split(',')[0].trim(),  // Just city name, no state
+          weekend: weekendParam
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setResults(data);
         setHasResults(true);
-      }, 1500);
+      } else {
+        setSearchError(data.detail || 'Search failed. Please try again.');
+      }
+    } catch (error) {
+      setSearchError('Failed to connect. Please try again.');
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -239,24 +265,47 @@ const WeekenderApp = () => {
     return 'Select dates';
   };
 
-  const categories = [
-    { key: 'all', label: 'All', count: 163 },
-    { key: 'concerts', label: 'Concerts', count: 24 },
-    { key: 'dining', label: 'Dining', count: 58 },
-    { key: 'events', label: 'Events', count: 22 },
-    { key: 'locations', label: 'Places', count: 59 },
-  ];
+  // Dynamic categories based on results
+  const getCategories = () => {
+    if (!results) return [
+      { key: 'all', label: 'All', count: 0 },
+      { key: 'concerts', label: 'Concerts', count: 0 },
+      { key: 'dining', label: 'Dining', count: 0 },
+      { key: 'events', label: 'Events', count: 0 },
+      { key: 'locations', label: 'Places', count: 0 },
+    ];
+
+    const counts = {
+      concerts: results.concerts?.length || 0,
+      dining: results.dining?.length || 0,
+      events: results.events?.length || 0,
+      locations: results.locations?.length || 0,
+    };
+    const total = counts.concerts + counts.dining + counts.events + counts.locations;
+
+    return [
+      { key: 'all', label: 'All', count: total },
+      { key: 'concerts', label: 'Concerts', count: counts.concerts },
+      { key: 'dining', label: 'Dining', count: counts.dining },
+      { key: 'events', label: 'Events', count: counts.events },
+      { key: 'locations', label: 'Places', count: counts.locations },
+    ];
+  };
+
+  const categories = getCategories();
 
   const getFilteredResults = () => {
+    if (!results) return {};
+
     if (activeCategory === 'all') {
       return {
-        concerts: mockResults.concerts.slice(0, 2),
-        dining: mockResults.dining.slice(0, 2),
-        events: mockResults.events.slice(0, 2),
-        locations: mockResults.locations.slice(0, 2)
+        concerts: results.concerts?.slice(0, 4) || [],
+        dining: results.dining?.slice(0, 4) || [],
+        events: results.events?.slice(0, 4) || [],
+        locations: results.locations?.slice(0, 4) || []
       };
     }
-    return { [activeCategory]: mockResults[activeCategory] };
+    return { [activeCategory]: results[activeCategory] || [] };
   };
 
   const filtered = getFilteredResults();
@@ -891,14 +940,24 @@ const WeekenderApp = () => {
                     </span>
                   ) : 'Search Weekend'}
                 </button>
-                
-                {/* Tip for city API integration */}
+
+                {searchError && (
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#F87171',
+                    marginTop: '16px',
+                    textAlign: 'center',
+                  }}>
+                    {searchError}
+                  </p>
+                )}
+
                 <p style={{
                   fontSize: '12px',
                   color: 'rgba(255,255,255,0.25)',
                   marginTop: '24px',
                 }}>
-                  💡 Connect to Google Places API for comprehensive city autocomplete
+                  Powered by multi-agent AI
                 </p>
               </div>
             ) : (
@@ -919,11 +978,11 @@ const WeekenderApp = () => {
                       marginBottom: '8px',
                     }}>{searchCity.split(',')[0]}</h1>
                     <p style={{ color: 'rgba(255,255,255,0.5)' }}>
-                      {searchDate === 'custom' ? formatCustomDateDisplay() : selectedDate?.sublabel}, 2026 • 163 results
+                      {results?.start_date} to {results?.end_date} • {categories[0].count} results
                     </p>
                   </div>
                   <button
-                    onClick={() => { setHasResults(false); setSearchCity(''); }}
+                    onClick={() => { setHasResults(false); setSearchCity(''); setResults(null); setActiveCategory('all'); }}
                     style={{
                       padding: '12px 20px',
                       fontSize: '14px',
