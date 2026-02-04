@@ -110,10 +110,35 @@ const WeekenderApp = () => {
     { name: 'Hartford', state: 'CT' },
   ];
 
+  // Calculate dynamic weekend dates
+  const getWeekendDates = (weeksAhead = 0) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+
+    // Find days until this Friday (day 5)
+    let daysUntilFriday = (5 - dayOfWeek + 7) % 7;
+    if (daysUntilFriday === 0 && today.getHours() >= 12) {
+      // If it's Friday afternoon or later, move to next weekend
+      daysUntilFriday = 7;
+    }
+
+    // Add weeks ahead
+    daysUntilFriday += weeksAhead * 7;
+
+    const friday = new Date(today);
+    friday.setDate(today.getDate() + daysUntilFriday);
+
+    const sunday = new Date(friday);
+    sunday.setDate(friday.getDate() + 2);
+
+    const formatShort = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `${formatShort(friday)} – ${formatShort(sunday)}`;
+  };
+
   const dateOptions = [
-    { key: 'this-weekend', label: 'This Weekend', sublabel: 'Jan 31 – Feb 2' },
-    { key: 'next-weekend', label: 'Next Weekend', sublabel: 'Feb 7 – 9' },
-    { key: 'two-weeks', label: 'In 2 Weeks', sublabel: 'Feb 14 – 16' },
+    { key: 'this-weekend', label: 'This Weekend', sublabel: getWeekendDates(0) },
+    { key: 'next-weekend', label: 'Next Weekend', sublabel: getWeekendDates(1) },
+    { key: 'two-weeks', label: 'In 2 Weeks', sublabel: getWeekendDates(2) },
     { key: 'custom', label: 'Custom Dates', sublabel: 'Pick a range' },
   ];
 
@@ -621,7 +646,7 @@ const WeekenderApp = () => {
                   color: 'rgba(255,255,255,0.3)',
                   marginTop: '24px',
                 }}>
-                  Powered by multi-agent AI • Ticketmaster • Google Places • Web Search
+                  Sources: Ticketmaster • Google Places • Tavily
                 </p>
               </>
             ) : (
@@ -962,7 +987,7 @@ const WeekenderApp = () => {
                   color: 'rgba(255,255,255,0.25)',
                   marginTop: '24px',
                 }}>
-                  Powered by multi-agent AI
+                  Sources: Ticketmaster • Google Places • Tavily
                 </p>
               </div>
             ) : (
