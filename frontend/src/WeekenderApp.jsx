@@ -646,7 +646,7 @@ const WeekenderApp = () => {
                   color: 'rgba(255,255,255,0.3)',
                   marginTop: '24px',
                 }}>
-                  Sources: Ticketmaster • Google Places • Tavily
+                  Sources: Ticketmaster • Google Places • Web Search (Tavily)
                 </p>
               </>
             ) : (
@@ -987,7 +987,7 @@ const WeekenderApp = () => {
                   color: 'rgba(255,255,255,0.25)',
                   marginTop: '24px',
                 }}>
-                  Sources: Ticketmaster • Google Places • Tavily
+                  Sources: Ticketmaster • Google Places • Web Search (Tavily)
                 </p>
               </div>
             ) : (
