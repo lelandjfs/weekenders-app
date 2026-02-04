@@ -56,14 +56,23 @@ def get_coordinates(city: str) -> tuple:
     return (30.2672, -97.7431)
 
 
-def get_weekend_dates(weekend: str = "next") -> tuple:
-    """Get start and end dates for weekend."""
+def get_weekend_dates(weekend: str = "this") -> tuple:
+    """Get start and end dates for weekend.
+
+    Args:
+        weekend: "this", "next", or "two-weeks"
+    """
     today = datetime.now()
     days_until_thursday = (3 - today.weekday()) % 7
+
+    # If it's already past Thursday noon, default to next week
+    if days_until_thursday == 0 and today.hour >= 12:
+        days_until_thursday = 7
+
     if weekend == "next":
         days_until_thursday += 7
-    elif days_until_thursday == 0 and today.hour >= 12:
-        days_until_thursday = 7
+    elif weekend == "two-weeks":
+        days_until_thursday += 14
 
     thursday = today + timedelta(days=days_until_thursday)
     saturday = thursday + timedelta(days=2)

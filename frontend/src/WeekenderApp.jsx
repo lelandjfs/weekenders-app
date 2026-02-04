@@ -188,7 +188,12 @@ const WeekenderApp = () => {
     setSearchError('');
 
     // Map date option to weekend param
-    const weekendParam = searchDate === 'next-weekend' ? 'next' : 'this';
+    const weekendMap = {
+      'this-weekend': 'this',
+      'next-weekend': 'next',
+      'two-weeks': 'two-weeks'
+    };
+    const weekendParam = weekendMap[searchDate] || 'this';
 
     try {
       const response = await fetch('https://weekenders-app.onrender.com/search', {
@@ -1051,7 +1056,7 @@ const WeekenderApp = () => {
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
-                          }}>View all 24 →</button>
+                          }} onClick={() => setActiveCategory('concerts')}>View all {categories.find(c => c.key === 'concerts')?.count || 0} →</button>
                         )}
                       </div>
                       <div style={{
@@ -1059,15 +1064,31 @@ const WeekenderApp = () => {
                         gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
                         gap: '16px',
                       }}>
-                        {filtered.concerts.map(item => (
-                          <div key={item.id} style={{
+                        {filtered.concerts.map((item, idx) => {
+                          // Format date with day of week
+                          const formatDate = (dateStr) => {
+                            if (!dateStr) return '';
+                            const date = new Date(dateStr + 'T12:00:00');
+                            return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                          };
+                          const formatTime = (timeStr) => {
+                            if (!timeStr) return '';
+                            const [h, m] = timeStr.split(':');
+                            const hour = parseInt(h);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const hour12 = hour % 12 || 12;
+                            return `${hour12}:${m} ${ampm}`;
+                          };
+                          return (
+                          <div key={item.name + idx} style={{
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: '16px',
                             padding: '24px',
-                            cursor: 'pointer',
+                            cursor: item.url ? 'pointer' : 'default',
                             transition: 'all 0.2s',
                           }}
+                          onClick={() => item.url && window.open(item.url, '_blank')}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
                             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -1077,12 +1098,27 @@ const WeekenderApp = () => {
                             e.currentTarget.style.transform = 'translateY(0)';
                           }}
                           >
-                            <p style={{
-                              fontSize: '12px',
-                              color: '#FF6B35',
-                              fontWeight: '600',
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'flex-start',
                               marginBottom: '8px',
-                            }}>{item.date} • {item.time}</p>
+                            }}>
+                              <p style={{
+                                fontSize: '12px',
+                                color: '#FF6B35',
+                                fontWeight: '600',
+                              }}>{formatDate(item.date)} • {formatTime(item.time)}</p>
+                              {item.genre && (
+                                <span style={{
+                                  fontSize: '11px',
+                                  padding: '4px 10px',
+                                  background: 'rgba(255,107,53,0.15)',
+                                  color: '#FF6B35',
+                                  borderRadius: '100px',
+                                }}>{item.genre}</span>
+                              )}
+                            </div>
                             <h3 style={{
                               fontSize: '18px',
                               fontWeight: '600',
@@ -1094,7 +1130,7 @@ const WeekenderApp = () => {
                               color: 'rgba(255,255,255,0.5)',
                             }}>{item.venue}</p>
                           </div>
-                        ))}
+                        )})}
                       </div>
                     </section>
                   )}
@@ -1122,7 +1158,7 @@ const WeekenderApp = () => {
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
-                          }}>View all 58 →</button>
+                          }} onClick={() => setActiveCategory('dining')}>View all {categories.find(c => c.key === 'dining')?.count || 0} →</button>
                         )}
                       </div>
                       <div style={{
@@ -1130,14 +1166,18 @@ const WeekenderApp = () => {
                         gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
                         gap: '16px',
                       }}>
-                        {filtered.dining.map(item => (
-                          <div key={item.id} style={{
+                        {filtered.dining.map((item, idx) => (
+                          <div key={item.name + idx} style={{
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: '16px',
                             padding: '24px',
-                            cursor: 'pointer',
+                            cursor: item.website || item.google_maps_url ? 'pointer' : 'default',
                             transition: 'all 0.2s',
+                          }}
+                          onClick={() => {
+                            const url = item.website || item.google_maps_url;
+                            if (url) window.open(url, '_blank');
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
@@ -1154,15 +1194,30 @@ const WeekenderApp = () => {
                               alignItems: 'flex-start',
                               marginBottom: '8px',
                             }}>
-                              <p style={{
-                                fontSize: '12px',
-                                color: '#22C55E',
-                                fontWeight: '600',
-                              }}>{item.neighborhood}</p>
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                {item.cuisine_type && (
+                                  <span style={{
+                                    fontSize: '11px',
+                                    padding: '4px 10px',
+                                    background: 'rgba(34,197,94,0.15)',
+                                    color: '#22C55E',
+                                    borderRadius: '100px',
+                                  }}>{item.cuisine_type}</span>
+                                )}
+                                {item.price_level && (
+                                  <span style={{
+                                    fontSize: '11px',
+                                    padding: '4px 10px',
+                                    background: 'rgba(255,255,255,0.1)',
+                                    color: 'rgba(255,255,255,0.6)',
+                                    borderRadius: '100px',
+                                  }}>{item.price_level}</span>
+                                )}
+                              </div>
                               <span style={{
                                 fontSize: '12px',
-                                color: 'rgba(255,255,255,0.4)',
-                              }}>{item.price}</span>
+                                color: 'rgba(255,255,255,0.5)',
+                              }}>★ {item.rating}</span>
                             </div>
                             <h3 style={{
                               fontSize: '18px',
@@ -1172,7 +1227,7 @@ const WeekenderApp = () => {
                             <p style={{
                               fontSize: '14px',
                               color: 'rgba(255,255,255,0.5)',
-                            }}>★ {item.rating}</p>
+                            }}>{item.neighborhood || item.address}</p>
                           </div>
                         ))}
                       </div>
@@ -1202,7 +1257,7 @@ const WeekenderApp = () => {
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
-                          }}>View all 22 →</button>
+                          }} onClick={() => setActiveCategory('events')}>View all {categories.find(c => c.key === 'events')?.count || 0} →</button>
                         )}
                       </div>
                       <div style={{
@@ -1210,15 +1265,30 @@ const WeekenderApp = () => {
                         gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
                         gap: '16px',
                       }}>
-                        {filtered.events.map(item => (
-                          <div key={item.id} style={{
+                        {filtered.events.map((item, idx) => {
+                          const formatDate = (dateStr) => {
+                            if (!dateStr) return '';
+                            const date = new Date(dateStr + 'T12:00:00');
+                            return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                          };
+                          const formatTime = (timeStr) => {
+                            if (!timeStr) return '';
+                            const [h, m] = timeStr.split(':');
+                            const hour = parseInt(h);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const hour12 = hour % 12 || 12;
+                            return `${hour12}:${m} ${ampm}`;
+                          };
+                          return (
+                          <div key={item.name + idx} style={{
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: '16px',
                             padding: '24px',
-                            cursor: 'pointer',
+                            cursor: item.url ? 'pointer' : 'default',
                             transition: 'all 0.2s',
                           }}
+                          onClick={() => item.url && window.open(item.url, '_blank')}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
                             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -1238,14 +1308,16 @@ const WeekenderApp = () => {
                                 fontSize: '12px',
                                 color: '#A78BFA',
                                 fontWeight: '600',
-                              }}>{item.date} • {item.time}</p>
-                              <span style={{
-                                fontSize: '11px',
-                                padding: '4px 10px',
-                                background: 'rgba(167,139,250,0.15)',
-                                color: '#A78BFA',
-                                borderRadius: '100px',
-                              }}>{item.category}</span>
+                              }}>{formatDate(item.date)} • {formatTime(item.time)}</p>
+                              {item.category && (
+                                <span style={{
+                                  fontSize: '11px',
+                                  padding: '4px 10px',
+                                  background: 'rgba(167,139,250,0.15)',
+                                  color: '#A78BFA',
+                                  borderRadius: '100px',
+                                }}>{item.category}</span>
+                              )}
                             </div>
                             <h3 style={{
                               fontSize: '18px',
@@ -1257,7 +1329,7 @@ const WeekenderApp = () => {
                               color: 'rgba(255,255,255,0.5)',
                             }}>{item.venue}</p>
                           </div>
-                        ))}
+                        )})}
                       </div>
                     </section>
                   )}
@@ -1285,7 +1357,7 @@ const WeekenderApp = () => {
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
-                          }}>View all 59 →</button>
+                          }} onClick={() => setActiveCategory('locations')}>View all {categories.find(c => c.key === 'locations')?.count || 0} →</button>
                         )}
                       </div>
                       <div style={{
@@ -1293,14 +1365,18 @@ const WeekenderApp = () => {
                         gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
                         gap: '16px',
                       }}>
-                        {filtered.locations.map(item => (
-                          <div key={item.id} style={{
+                        {filtered.locations.map((item, idx) => (
+                          <div key={item.name + idx} style={{
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: '16px',
                             padding: '24px',
-                            cursor: 'pointer',
+                            cursor: (item.website || item.google_maps_url) ? 'pointer' : 'default',
                             transition: 'all 0.2s',
+                          }}
+                          onClick={() => {
+                            const url = item.website || item.google_maps_url;
+                            if (url) window.open(url, '_blank');
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
@@ -1317,17 +1393,21 @@ const WeekenderApp = () => {
                               alignItems: 'flex-start',
                               marginBottom: '8px',
                             }}>
-                              <span style={{
-                                fontSize: '11px',
-                                padding: '4px 10px',
-                                background: 'rgba(56,189,248,0.15)',
-                                color: '#38BDF8',
-                                borderRadius: '100px',
-                              }}>{item.category}</span>
-                              <span style={{
-                                fontSize: '12px',
-                                color: 'rgba(255,255,255,0.4)',
-                              }}>★ {item.rating}</span>
+                              {item.category && (
+                                <span style={{
+                                  fontSize: '11px',
+                                  padding: '4px 10px',
+                                  background: 'rgba(56,189,248,0.15)',
+                                  color: '#38BDF8',
+                                  borderRadius: '100px',
+                                }}>{item.category}</span>
+                              )}
+                              {item.rating && (
+                                <span style={{
+                                  fontSize: '12px',
+                                  color: 'rgba(255,255,255,0.4)',
+                                }}>★ {item.rating}</span>
+                              )}
                             </div>
                             <h3 style={{
                               fontSize: '18px',
@@ -1337,7 +1417,7 @@ const WeekenderApp = () => {
                             <p style={{
                               fontSize: '14px',
                               color: 'rgba(255,255,255,0.5)',
-                            }}>{item.info}</p>
+                            }}>{item.description || item.address}</p>
                           </div>
                         ))}
                       </div>
