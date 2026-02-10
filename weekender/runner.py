@@ -112,12 +112,39 @@ CITY_COORDS = {
 
 
 def get_coordinates(city: str) -> tuple:
-    """Get lat/lon for a city."""
+    """Get lat/lon for a city. Uses cache first, then geocoding API."""
+    import requests
+
     city_lower = city.lower().strip()
     if city_lower in CITY_COORDS:
         return CITY_COORDS[city_lower]
-    print(f"  Note: Using default coordinates for unknown city '{city}'")
-    return (30.2672, -97.7431)
+
+    # Try dynamic geocoding via Nominatim (OpenStreetMap)
+    print(f"  [Geocoding] Looking up coordinates for '{city}'...")
+    try:
+        response = requests.get(
+            "https://nominatim.openstreetmap.org/search",
+            params={
+                "q": f"{city}, USA",
+                "format": "json",
+                "limit": 1
+            },
+            headers={"User-Agent": "WeekenderApp/1.0"},
+            timeout=5
+        )
+        if response.ok and response.json():
+            result = response.json()[0]
+            lat, lon = float(result["lat"]), float(result["lon"])
+            print(f"  [Geocoding] Found: {lat}, {lon}")
+            # Cache for future use
+            CITY_COORDS[city_lower] = (lat, lon)
+            return (lat, lon)
+    except Exception as e:
+        print(f"  [Geocoding] Error: {e}")
+
+    print(f"  [Geocoding] FAILED for '{city}' - results may be inaccurate")
+    # Return None to signal failure rather than wrong coordinates
+    return None
 
 
 def get_weekend_dates(weekend: str = "this") -> tuple:
@@ -479,12 +506,20 @@ def _extract_data_and_errors(fetch_result: dict, errors_list: list) -> list:
 @traceable(name="weekender_pipeline", run_type="chain")
 def run_all_agents(city: str, weekend: str = "next") -> dict:
     """Run all data fetching in parallel, then aggregate."""
-    lat, lon = get_coordinates(city)
+    coords = get_coordinates(city)
     start_date, end_date = get_weekend_dates(weekend)
+
+    # Handle geocoding failure
+    if coords is None:
+        lat, lon = None, None
+        geocode_failed = True
+    else:
+        lat, lon = coords
+        geocode_failed = False
 
     results = {
         "city": city,
-        "coordinates": (lat, lon),
+        "coordinates": (lat, lon) if coords else None,
         "start_date": start_date,
         "end_date": end_date,
         "concerts": [],
@@ -494,27 +529,36 @@ def run_all_agents(city: str, weekend: str = "next") -> dict:
         "errors": []
     }
 
+    # Add error if geocoding failed
+    if geocode_failed:
+        results["errors"].append({
+            "source": "Geocoding",
+            "type": "error",
+            "message": f"Could not find coordinates for '{city}'. Some results may be missing."
+        })
+
     # Phase 1: Parallel data fetching
     print("\n   Phase 1: Fetching data in parallel...")
 
     fetch_results = {}
 
     with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = {
-            # Concerts
-            executor.submit(fetch_concerts, city, lat, lon, start_date, end_date): "concerts",
+        futures = {}
 
-            # Events
-            executor.submit(fetch_events_ticketmaster, city, lat, lon, start_date, end_date): "events_tm",
-            executor.submit(fetch_events_web, city, start_date, end_date): "events_web",
+        # Only fetch coordinate-dependent data if we have coordinates
+        if lat is not None and lon is not None:
+            futures[executor.submit(fetch_concerts, city, lat, lon, start_date, end_date)] = "concerts"
+            futures[executor.submit(fetch_events_ticketmaster, city, lat, lon, start_date, end_date)] = "events_tm"
+        else:
+            # Skip these if no coordinates
+            fetch_results["concerts"] = {"data": [], "error": {"type": "error", "message": "No coordinates available"}, "source": "Ticketmaster"}
+            fetch_results["events_tm"] = {"data": [], "error": {"type": "error", "message": "No coordinates available"}, "source": "Ticketmaster"}
 
-            # Dining (neighborhoods first, then parallel)
-            executor.submit(fetch_neighborhoods, city): "neighborhoods",
-
-            # Locations
-            executor.submit(fetch_locations_google, city): "locations_google",
-            executor.submit(fetch_locations_web, city): "locations_web",
-        }
+        # These don't need coordinates
+        futures[executor.submit(fetch_events_web, city, start_date, end_date)] = "events_web"
+        futures[executor.submit(fetch_neighborhoods, city)] = "neighborhoods"
+        futures[executor.submit(fetch_locations_google, city)] = "locations_google"
+        futures[executor.submit(fetch_locations_web, city)] = "locations_web"
 
         for future in as_completed(futures):
             name = futures[future]
