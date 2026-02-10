@@ -64,6 +64,24 @@ async def health():
     return {"status": "healthy"}
 
 
+@app.get("/cache-status")
+async def cache_status():
+    """Check Redis cache connection status."""
+    from cache import get_redis
+    client = get_redis()
+    if client:
+        try:
+            client.ping()
+            info = client.info("memory")
+            return {
+                "connected": True,
+                "memory_used": info.get("used_memory_human", "unknown")
+            }
+        except Exception as e:
+            return {"connected": False, "error": str(e)}
+    return {"connected": False, "reason": "No Redis URL configured"}
+
+
 @app.post("/search", response_model=SearchResponse)
 async def search_weekend(request: SearchRequest):
     """
