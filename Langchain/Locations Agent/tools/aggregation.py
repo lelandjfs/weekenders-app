@@ -5,12 +5,15 @@ Aggregation Tool for LangChain Locations Agent
 LangChain-compatible tool for aggregating and deduplicating location results.
 Uses Claude Haiku to parse web pages and combine with Google Places data.
 
-Focuses on extracting hidden gems and authentic local recommendations.
+Optimized with:
+- Pre-filtering to extract only location-relevant content
+- Batch processing for parallel LLM calls
 """
 
 import json
 import re
 from typing import List, Dict, Any
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_anthropic import ChatAnthropic
@@ -21,6 +24,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ANTHROPIC_API_KEY
+
+# Import content filter
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "weekender"))
+from content_filter import filter_content, batch_pages
 
 
 class AggregationInput(BaseModel):
@@ -64,9 +71,9 @@ def aggregate_locations(
 
     print(f"   -> Starting with {len(google_places_results)} Google Places locations")
 
-    # Parse web pages with Claude Haiku
+    # Parse web pages with Claude Haiku (with filtering and batching)
     if web_page_contents:
-        web_locations = _parse_web_pages(web_page_contents, city)
+        web_locations = _parse_web_pages_batched(web_page_contents, city)
         all_locations.extend(web_locations)
         print(f"   -> Added {len(web_locations)} locations from web sources")
 
@@ -82,13 +89,58 @@ def aggregate_locations(
     return unique_locations
 
 
-def _parse_web_pages(web_pages: List[str], city: str) -> List[Dict[str, Any]]:
-    """Use Claude Haiku to parse location details from web pages."""
+def _parse_web_pages_batched(
+    web_pages: List[str],
+    city: str,
+    batch_size: int = 3,
+    max_workers: int = 3
+) -> List[Dict[str, Any]]:
+    """Parse web pages in batches with parallel processing."""
+
+    # Step 1: Pre-filter content to reduce context
+    print(f"   -> Pre-filtering {len(web_pages)} pages...")
+    filtered_pages = []
+    for page in web_pages:
+        filtered = filter_content(page, 'locations', max_lines=100)
+        if filtered.strip():
+            filtered_pages.append(filtered)
+
+    print(f"   -> After filtering: {len(filtered_pages)} pages with relevant content")
+
+    if not filtered_pages:
+        return []
+
+    # Step 2: Batch pages
+    batches = batch_pages(filtered_pages, batch_size)
+    print(f"   -> Processing {len(batches)} batches in parallel...")
+
+    # Step 3: Process batches in parallel
+    all_results = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(_parse_batch, batch, city): i
+            for i, batch in enumerate(batches)
+        }
+
+        for future in as_completed(futures):
+            batch_idx = futures[future]
+            try:
+                results = future.result()
+                all_results.extend(results)
+            except Exception as e:
+                print(f"   Warning: Batch {batch_idx} failed: {e}")
+
+    return all_results
+
+
+def _parse_batch(pages: List[str], city: str) -> List[Dict[str, Any]]:
+    """Parse a batch of pages with Claude Haiku."""
     llm = ChatAnthropic(
         model="claude-3-5-haiku-20241022",
         anthropic_api_key=ANTHROPIC_API_KEY,
         temperature=0,
-        max_tokens=8000
+        max_tokens=4000
     )
 
     prompt = ChatPromptTemplate.from_messages([
@@ -130,7 +182,7 @@ OUTPUT FORMAT - Return ONLY valid JSON:
     {{"name": "...", "address": null, "neighborhood": null, "category": "Hidden Gems", "description": "...", "rating": null, "price": null, "website": null, "source": "reddit", "local_tip": null}}
   ]
 }}"""),
-        ("human", """Parse these web pages and extract all interesting locations in {city}:
+        ("human", """Parse this content and extract all interesting locations in {city}:
 
 {web_pages}
 
@@ -140,18 +192,8 @@ Return locations as JSON. Focus on hidden gems and local favorites.""")
     chain = prompt | llm
 
     try:
-        # Truncate pages if too long
-        truncated_pages = []
-        for page in web_pages:
-            if len(page) > 10000:
-                truncated_pages.append(page[:10000] + "\n\n[...truncated...]")
-            else:
-                truncated_pages.append(page)
-
-        print(f"   -> Parsing {len(truncated_pages)} web pages with Claude Haiku...")
-
         response = chain.invoke({
-            "web_pages": "\n\n---PAGE BREAK---\n\n".join(truncated_pages),
+            "web_pages": "\n\n---\n\n".join(pages),
             "city": city
         })
 
@@ -173,12 +215,10 @@ Return locations as JSON. Focus on hidden gems and local favorites.""")
             content = content[:json_end + 1]
 
         data = json.loads(content)
-        locations = data.get("locations", [])
-
-        return locations
+        return data.get("locations", [])
 
     except Exception as e:
-        print(f"   Warning: Error parsing web pages: {e}")
+        print(f"   Warning: Parse error: {e}")
         return []
 
 

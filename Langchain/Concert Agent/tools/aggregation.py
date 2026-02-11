@@ -1,14 +1,19 @@
 """
-Aggregation Tool for LangChain
-===============================
+Aggregation Tool for LangChain Concert Agent
+=============================================
 
 Uses Claude Haiku to parse, deduplicate, and format concert results.
 LangChain-compatible with @tool decorator for LangSmith tracing.
+
+Optimized with:
+- Pre-filtering to extract only concert-relevant content
+- Batch processing for parallel LLM calls
 """
 
 import json
 from typing import List, Dict, Any
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_anthropic import ChatAnthropic
@@ -18,6 +23,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ANTHROPIC_API_KEY
+
+# Import content filter
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "weekender"))
+from content_filter import filter_content, batch_pages
 
 # Use environment variable from config
 CLAUDE_API_KEY = ANTHROPIC_API_KEY or os.getenv("ANTHROPIC_API_KEY")
@@ -60,6 +69,134 @@ def _filter_by_date(concerts: List[Dict], start_date: str, end_date: str) -> Lis
             continue
 
     return filtered
+
+
+def _parse_web_pages_batched(
+    web_pages: List[str],
+    start_date: str,
+    end_date: str,
+    location: str,
+    batch_size: int = 3,
+    max_workers: int = 3
+) -> List[Dict[str, Any]]:
+    """Parse web pages in batches with parallel processing."""
+
+    # Step 1: Pre-filter content to reduce context
+    print(f"   -> Pre-filtering {len(web_pages)} pages...")
+    filtered_pages = []
+    for page in web_pages:
+        filtered = filter_content(page, 'concerts', max_lines=100)
+        if filtered.strip():
+            filtered_pages.append(filtered)
+
+    print(f"   -> After filtering: {len(filtered_pages)} pages with relevant content")
+
+    if not filtered_pages:
+        return []
+
+    # Step 2: Batch pages
+    batches = batch_pages(filtered_pages, batch_size)
+    print(f"   -> Processing {len(batches)} batches in parallel...")
+
+    # Step 3: Process batches in parallel
+    all_results = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(_parse_batch, batch, start_date, end_date, location): i
+            for i, batch in enumerate(batches)
+        }
+
+        for future in as_completed(futures):
+            batch_idx = futures[future]
+            try:
+                results = future.result()
+                all_results.extend(results)
+            except Exception as e:
+                print(f"   Warning: Batch {batch_idx} failed: {e}")
+
+    print(f"   -> Extracted {len(all_results)} concerts from web pages")
+    return all_results
+
+
+def _parse_batch(pages: List[str], start_date: str, end_date: str, location: str) -> List[Dict[str, Any]]:
+    """Parse a batch of pages with Claude Haiku."""
+    llm = ChatAnthropic(
+        model="claude-3-5-haiku-20241022",
+        anthropic_api_key=CLAUDE_API_KEY,
+        temperature=0,
+        max_tokens=4000
+    )
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """You are an extraction engine. Extract concert events from the web page content provided.
+
+Rules:
+1. Extract EVERY concert you find in the web pages
+2. Only include concerts between {start_date} and {end_date} (inclusive)
+3. For each concert, extract:
+   - name: artist/headliner name
+   - venue: venue name
+   - date: YYYY-MM-DD format (REQUIRED)
+   - time: "H:MM PM" or null
+   - location: "City, State" or null
+   - price_range: "$X-$Y" or null
+   - url: event URL or null
+   - source: "songkick", "bandsintown", "seatgeek", or "web"
+   - genre: genre or null
+
+4. If a field is missing, set it to null - DO NOT guess
+5. Skip any concert without a clear date
+
+OUTPUT FORMAT - Return ONLY valid JSON:
+{{
+  "concerts": [
+    {{"name": "...", "venue": "...", "date": "YYYY-MM-DD", "time": null, "location": null, "price_range": null, "url": null, "source": "...", "genre": null}}
+  ]
+}}"""),
+        ("human", """Parse this content and extract all concerts:
+
+{web_pages}
+
+Date range: {start_date} to {end_date}
+Location: {location}
+
+Return concerts as JSON.""")
+    ])
+
+    chain = prompt | llm
+
+    try:
+        response = chain.invoke({
+            "web_pages": "\n\n---\n\n".join(pages),
+            "start_date": start_date,
+            "end_date": end_date,
+            "location": location
+        })
+
+        content = response.content.strip()
+
+        # Remove markdown code blocks if present
+        if content.startswith("```"):
+            content = content.split("```")[1]
+            if content.startswith("json"):
+                content = content[4:]
+            content = content.strip()
+
+        # Find JSON block
+        json_start = content.find("{")
+        if json_start > 0:
+            content = content[json_start:]
+        json_end = content.rfind("}")
+        if json_end > 0:
+            content = content[:json_end + 1]
+
+        data = json.loads(content)
+        return data.get("concerts", [])
+
+    except Exception as e:
+        print(f"   Warning: Parse error: {e}")
+        return []
 
 
 def _deduplicate(concerts: List[Dict]) -> List[Dict]:
@@ -112,94 +249,8 @@ def aggregate_concert_results(
     if not web_page_contents:
         return sorted(filtered_tm, key=lambda x: x.get("date", "9999-99-99"))
 
-    # Use Claude Haiku to parse web pages
-    llm = ChatAnthropic(
-        model="claude-3-5-haiku-20241022",
-        anthropic_api_key=CLAUDE_API_KEY,
-        temperature=0,
-        max_tokens=8000
-    )
-
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """You are an extraction engine. Extract concert events from the web page content provided.
-
-Rules:
-1. Extract EVERY concert you find in the web pages
-2. Only include concerts between {start_date} and {end_date} (inclusive)
-3. For each concert, extract:
-   - name: artist/headliner name
-   - venue: venue name
-   - date: YYYY-MM-DD format (REQUIRED)
-   - time: "H:MM PM" or null
-   - location: "City, State" or null
-   - price_range: "$X-$Y" or null
-   - url: event URL or null
-   - source: "songkick", "bandsintown", "seatgeek", or "web"
-   - genre: genre or null
-
-4. If a field is missing, set it to null - DO NOT guess
-5. Skip any concert without a clear date
-
-OUTPUT FORMAT - Return ONLY valid JSON:
-{{
-  "concerts": [
-    {{"name": "...", "venue": "...", "date": "YYYY-MM-DD", "time": null, "location": null, "price_range": null, "url": null, "source": "...", "genre": null}}
-  ]
-}}"""),
-        ("human", """Parse these web pages and extract all concerts:
-
-{web_pages}
-
-Date range: {start_date} to {end_date}
-Location: {location}
-
-Return concerts as JSON.""")
-    ])
-
-    chain = prompt | llm
-
-    try:
-        # Truncate pages if too long
-        truncated_pages = []
-        for page in web_page_contents:
-            if len(page) > 10000:
-                truncated_pages.append(page[:10000] + "\n\n[...truncated...]")
-            else:
-                truncated_pages.append(page)
-
-        print(f"   → Parsing {len(truncated_pages)} web pages with Claude Haiku...")
-
-        response = chain.invoke({
-            "web_pages": "\n\n---PAGE BREAK---\n\n".join(truncated_pages),
-            "start_date": start_date,
-            "end_date": end_date,
-            "location": location
-        })
-
-        content = response.content.strip()
-
-        # Remove markdown code blocks if present
-        if content.startswith("```"):
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-            content = content.strip()
-
-        # Find JSON block
-        json_start = content.find("{")
-        if json_start > 0:
-            content = content[json_start:]
-        json_end = content.rfind("}")
-        if json_end > 0:
-            content = content[:json_end + 1]
-
-        data = json.loads(content)
-        web_concerts = data.get("concerts", [])
-        print(f"   → Extracted {len(web_concerts)} concerts from web pages")
-
-    except Exception as e:
-        print(f"   → Error parsing web pages: {e}")
-        web_concerts = []
+    # Parse web pages with filtering and batching
+    web_concerts = _parse_web_pages_batched(web_page_contents, start_date, end_date, location)
 
     # Combine Ticketmaster + web concerts
     print(f"   → Combining {len(filtered_tm)} Ticketmaster + {len(web_concerts)} web concerts...")

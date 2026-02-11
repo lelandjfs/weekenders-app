@@ -4,11 +4,16 @@ Aggregation Tool for LangChain Events Agent
 
 LangChain-compatible tool for aggregating and deduplicating event results.
 Uses Claude Haiku to parse web pages and combine with Ticketmaster data.
+
+Optimized with:
+- Pre-filtering to extract only event-relevant content
+- Batch processing for parallel LLM calls
 """
 
 import json
 import re
 from typing import List, Dict, Any
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_anthropic import ChatAnthropic
@@ -19,6 +24,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ANTHROPIC_API_KEY
+
+# Import content filter
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "weekender"))
+from content_filter import filter_content, batch_pages
 
 
 class AggregationInput(BaseModel):
@@ -66,17 +75,17 @@ def aggregate_events(
         e["source"] = "ticketmaster"
         all_events.append(e)
 
-    print(f"   → Starting with {len(ticketmaster_results)} Ticketmaster events")
+    print(f"   -> Starting with {len(ticketmaster_results)} Ticketmaster events")
 
-    # Parse web pages with Claude Haiku
+    # Parse web pages with Claude Haiku (with filtering and batching)
     if web_page_contents:
-        web_events = _parse_web_pages(web_page_contents, city, start_date, end_date)
+        web_events = _parse_web_pages_batched(web_page_contents, city, start_date, end_date)
         all_events.extend(web_events)
-        print(f"   → Added {len(web_events)} events from web sources")
+        print(f"   -> Added {len(web_events)} events from web sources")
 
     # Deduplicate
     unique_events = _deduplicate(all_events)
-    print(f"   → After deduplication: {len(unique_events)} unique events")
+    print(f"   -> After deduplication: {len(unique_events)} unique events")
 
     # Sort by date, then by name
     unique_events.sort(
@@ -86,25 +95,67 @@ def aggregate_events(
     return unique_events
 
 
-def _parse_web_pages(
+def _parse_web_pages_batched(
     web_pages: List[str],
     city: str,
     start_date: str,
-    end_date: str
+    end_date: str,
+    batch_size: int = 3,
+    max_workers: int = 3
 ) -> List[Dict[str, Any]]:
-    """Use Claude Haiku to parse event details from web pages."""
+    """Parse web pages in batches with parallel processing."""
+
+    # Step 1: Pre-filter content to reduce context
+    print(f"   -> Pre-filtering {len(web_pages)} pages...")
+    filtered_pages = []
+    for page in web_pages:
+        filtered = filter_content(page, 'events', max_lines=100)
+        if filtered.strip():
+            filtered_pages.append(filtered)
+
+    print(f"   -> After filtering: {len(filtered_pages)} pages with relevant content")
+
+    if not filtered_pages:
+        return []
+
+    # Step 2: Batch pages
+    batches = batch_pages(filtered_pages, batch_size)
+    print(f"   -> Processing {len(batches)} batches in parallel...")
+
+    # Step 3: Process batches in parallel
+    all_results = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(_parse_batch, batch, city, start_date, end_date): i
+            for i, batch in enumerate(batches)
+        }
+
+        for future in as_completed(futures):
+            batch_idx = futures[future]
+            try:
+                results = future.result()
+                all_results.extend(results)
+            except Exception as e:
+                print(f"   Warning: Batch {batch_idx} failed: {e}")
+
+    return all_results
+
+
+def _parse_batch(pages: List[str], city: str, start_date: str, end_date: str) -> List[Dict[str, Any]]:
+    """Parse a batch of pages with Claude Haiku."""
     llm = ChatAnthropic(
         model="claude-3-5-haiku-20241022",
         anthropic_api_key=ANTHROPIC_API_KEY,
         temperature=0,
-        max_tokens=8000
+        max_tokens=4000
     )
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", """You are an event extraction engine. Extract event information from the web page content provided.
+        ("system", """You are an event extraction engine. Extract event information from the web content provided.
 
 Rules:
-1. Extract EVERY event mentioned in the web pages
+1. Extract EVERY event mentioned
 2. For each event, extract:
    - name: event name (REQUIRED)
    - venue: venue name or null
@@ -128,7 +179,7 @@ OUTPUT FORMAT - Return ONLY valid JSON:
     {{"name": "...", "venue": null, "date": null, "time": null, "location": null, "category": null, "description": null, "price_range": null, "url": null, "source": "eventbrite"}}
   ]
 }}"""),
-        ("human", """Parse these web pages and extract all events in {city} between {start_date} and {end_date}:
+        ("human", """Parse this content and extract all events in {city} between {start_date} and {end_date}:
 
 {web_pages}
 
@@ -138,18 +189,8 @@ Return events as JSON.""")
     chain = prompt | llm
 
     try:
-        # Truncate pages if too long
-        truncated_pages = []
-        for page in web_pages:
-            if len(page) > 10000:
-                truncated_pages.append(page[:10000] + "\n\n[...truncated...]")
-            else:
-                truncated_pages.append(page)
-
-        print(f"   → Parsing {len(truncated_pages)} web pages with Claude Haiku...")
-
         response = chain.invoke({
-            "web_pages": "\n\n---PAGE BREAK---\n\n".join(truncated_pages),
+            "web_pages": "\n\n---\n\n".join(pages),
             "city": city,
             "start_date": start_date,
             "end_date": end_date
@@ -173,12 +214,10 @@ Return events as JSON.""")
             content = content[:json_end + 1]
 
         data = json.loads(content)
-        events = data.get("events", [])
-
-        return events
+        return data.get("events", [])
 
     except Exception as e:
-        print(f"   ⚠️ Error parsing web pages: {e}")
+        print(f"   Warning: Parse error: {e}")
         return []
 
 

@@ -4,11 +4,16 @@ Aggregation Tool for LangChain
 
 LangChain-compatible tool for aggregating and deduplicating restaurant results.
 Uses Claude Haiku to parse web pages and combine with Google Places data.
+
+Optimized with:
+- Pre-filtering to extract only restaurant-relevant content
+- Batch processing for parallel LLM calls
 """
 
 import json
 import re
 from typing import List, Dict, Any
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_anthropic import ChatAnthropic
@@ -19,6 +24,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ANTHROPIC_API_KEY
+
+# Import content filter
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "weekender"))
+from content_filter import filter_content, batch_pages
 
 
 class AggregationInput(BaseModel):
@@ -66,17 +75,17 @@ def aggregate_restaurants(
         r["source"] = "google_places"
         all_restaurants.append(r)
 
-    print(f"   → Starting with {len(google_places_results)} Google Places results")
+    print(f"   -> Starting with {len(google_places_results)} Google Places results")
 
-    # Parse web pages with Claude Haiku
+    # Parse web pages with Claude Haiku (with filtering and batching)
     if web_page_contents:
-        web_restaurants = _parse_web_pages(web_page_contents, city)
+        web_restaurants = _parse_web_pages_batched(web_page_contents, city)
         all_restaurants.extend(web_restaurants)
-        print(f"   → Added {len(web_restaurants)} restaurants from web sources")
+        print(f"   -> Added {len(web_restaurants)} restaurants from web sources")
 
     # Deduplicate
     unique_restaurants = _deduplicate(all_restaurants)
-    print(f"   → After deduplication: {len(unique_restaurants)} unique restaurants")
+    print(f"   -> After deduplication: {len(unique_restaurants)} unique restaurants")
 
     # Sort by rating (descending), then by review count
     unique_restaurants.sort(
@@ -89,23 +98,65 @@ def aggregate_restaurants(
     return unique_restaurants
 
 
-def _parse_web_pages(
+def _parse_web_pages_batched(
     web_pages: List[str],
-    city: str
+    city: str,
+    batch_size: int = 3,
+    max_workers: int = 3
 ) -> List[Dict[str, Any]]:
-    """Use Claude Haiku to parse restaurant details from web pages."""
+    """Parse web pages in batches with parallel processing."""
+
+    # Step 1: Pre-filter content to reduce context
+    print(f"   -> Pre-filtering {len(web_pages)} pages...")
+    filtered_pages = []
+    for page in web_pages:
+        filtered = filter_content(page, 'restaurants', max_lines=100)
+        if filtered.strip():  # Only keep pages with relevant content
+            filtered_pages.append(filtered)
+
+    print(f"   -> After filtering: {len(filtered_pages)} pages with relevant content")
+
+    if not filtered_pages:
+        return []
+
+    # Step 2: Batch pages
+    batches = batch_pages(filtered_pages, batch_size)
+    print(f"   -> Processing {len(batches)} batches in parallel...")
+
+    # Step 3: Process batches in parallel
+    all_results = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(_parse_batch, batch, city): i
+            for i, batch in enumerate(batches)
+        }
+
+        for future in as_completed(futures):
+            batch_idx = futures[future]
+            try:
+                results = future.result()
+                all_results.extend(results)
+            except Exception as e:
+                print(f"   Warning: Batch {batch_idx} failed: {e}")
+
+    return all_results
+
+
+def _parse_batch(pages: List[str], city: str) -> List[Dict[str, Any]]:
+    """Parse a batch of pages with Claude Haiku."""
     llm = ChatAnthropic(
         model="claude-3-5-haiku-20241022",
         anthropic_api_key=ANTHROPIC_API_KEY,
         temperature=0,
-        max_tokens=8000
+        max_tokens=4000
     )
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", """You are an extraction engine. Extract restaurant information from the web page content provided.
+        ("system", """You are an extraction engine. Extract restaurant information from the web content provided.
 
 Rules:
-1. Extract EVERY restaurant mentioned in the web pages
+1. Extract EVERY restaurant mentioned
 2. For each restaurant, extract:
    - name: restaurant name (REQUIRED)
    - address: full address or null
@@ -128,7 +179,7 @@ OUTPUT FORMAT - Return ONLY valid JSON:
     {{"name": "...", "address": null, "neighborhood": null, "rating": null, "review_count": null, "price_level": null, "cuisine_type": null, "website": null, "description": null, "source": "eater"}}
   ]
 }}"""),
-        ("human", """Parse these web pages and extract all restaurants in {city}:
+        ("human", """Parse this content and extract all restaurants in {city}:
 
 {web_pages}
 
@@ -138,18 +189,8 @@ Return restaurants as JSON.""")
     chain = prompt | llm
 
     try:
-        # Truncate pages if too long
-        truncated_pages = []
-        for page in web_pages:
-            if len(page) > 10000:
-                truncated_pages.append(page[:10000] + "\n\n[...truncated...]")
-            else:
-                truncated_pages.append(page)
-
-        print(f"   → Parsing {len(truncated_pages)} web pages with Claude Haiku...")
-
         response = chain.invoke({
-            "web_pages": "\n\n---PAGE BREAK---\n\n".join(truncated_pages),
+            "web_pages": "\n\n---\n\n".join(pages),
             "city": city
         })
 
@@ -171,12 +212,10 @@ Return restaurants as JSON.""")
             content = content[:json_end + 1]
 
         data = json.loads(content)
-        restaurants = data.get("restaurants", [])
-
-        return restaurants
+        return data.get("restaurants", [])
 
     except Exception as e:
-        print(f"   ⚠️ Error parsing web pages: {e}")
+        print(f"   Warning: Parse error: {e}")
         return []
 
 
