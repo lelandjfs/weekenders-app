@@ -22,6 +22,12 @@ const WeekenderApp = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [selectedCityData, setSelectedCityData] = useState(null);
 
+  // Category-specific filters
+  const [concertFilters, setConcertFilters] = useState({ genre: 'all', day: 'all', time: 'all' });
+  const [diningFilters, setDiningFilters] = useState({ type: 'all', cuisine: 'all', price: 'all', rating: 'all' });
+  const [eventFilters, setEventFilters] = useState({ category: 'all', day: 'all' });
+  const [placeFilters, setPlaceFilters] = useState({ category: 'all', rating: 'all' });
+
   const cityInputRef = useRef(null);
   const datePickerRef = useRef(null);
   const subscribeCityRef = useRef(null);
@@ -414,6 +420,73 @@ const WeekenderApp = () => {
 
   const categories = getCategories();
 
+  // Extract unique filter options from results
+  const getFilterOptions = () => {
+    if (!results) return {};
+
+    // Concert genres
+    const genres = new Set();
+    (results.concerts || []).forEach(c => {
+      if (c.genre) genres.add(c.genre);
+    });
+
+    // Concert days
+    const concertDays = new Set();
+    (results.concerts || []).forEach(c => {
+      if (c.date) {
+        const day = new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
+        concertDays.add(day);
+      }
+    });
+
+    // Dining cuisines and types
+    const cuisines = new Set();
+    const diningTypes = new Set(['Restaurant']);
+    (results.dining || []).forEach(d => {
+      if (d.cuisine) cuisines.add(d.cuisine);
+      // Check if it's a bar based on name/cuisine
+      const name = (d.name || '').toLowerCase();
+      const cuisine = (d.cuisine || '').toLowerCase();
+      if (name.includes('bar') || cuisine.includes('bar') || cuisine.includes('cocktail') || cuisine.includes('wine')) {
+        diningTypes.add('Bar');
+      }
+    });
+
+    // Event categories
+    const eventCategories = new Set();
+    (results.events || []).forEach(e => {
+      if (e.category) eventCategories.add(e.category);
+    });
+
+    // Event days
+    const eventDays = new Set();
+    (results.events || []).forEach(e => {
+      if (e.date) {
+        const day = new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
+        eventDays.add(day);
+      }
+    });
+
+    // Place categories
+    const placeCategories = new Set();
+    (results.locations || []).forEach(l => {
+      if (l.category) placeCategories.add(l.category);
+    });
+
+    return {
+      genres: Array.from(genres).sort(),
+      concertDays: Array.from(concertDays),
+      cuisines: Array.from(cuisines).sort(),
+      diningTypes: Array.from(diningTypes),
+      eventCategories: Array.from(eventCategories).sort(),
+      eventDays: Array.from(eventDays),
+      placeCategories: Array.from(placeCategories).sort(),
+    };
+  };
+
+  const filterOptions = getFilterOptions();
+
+  // Apply filters to results
   const getFilteredResults = () => {
     if (!results) return {};
 
@@ -425,6 +498,99 @@ const WeekenderApp = () => {
         locations: results.locations?.slice(0, 4) || []
       };
     }
+
+    // Apply category-specific filters
+    if (activeCategory === 'concerts') {
+      let concerts = results.concerts || [];
+      if (concertFilters.genre !== 'all') {
+        concerts = concerts.filter(c => c.genre === concertFilters.genre);
+      }
+      if (concertFilters.day !== 'all') {
+        concerts = concerts.filter(c => {
+          if (!c.date) return false;
+          const day = new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
+          return day === concertFilters.day;
+        });
+      }
+      if (concertFilters.time !== 'all') {
+        concerts = concerts.filter(c => {
+          if (!c.time) return true;
+          const hour = parseInt(c.time.split(':')[0]);
+          if (concertFilters.time === 'afternoon') return hour < 18;
+          if (concertFilters.time === 'evening') return hour >= 18;
+          return true;
+        });
+      }
+      return { concerts };
+    }
+
+    if (activeCategory === 'dining') {
+      let dining = results.dining || [];
+      if (diningFilters.type !== 'all') {
+        dining = dining.filter(d => {
+          const name = (d.name || '').toLowerCase();
+          const cuisine = (d.cuisine || '').toLowerCase();
+          const isBar = name.includes('bar') || cuisine.includes('bar') || cuisine.includes('cocktail') || cuisine.includes('wine');
+          if (diningFilters.type === 'Bar') return isBar;
+          return !isBar;
+        });
+      }
+      if (diningFilters.cuisine !== 'all') {
+        dining = dining.filter(d => d.cuisine === diningFilters.cuisine);
+      }
+      if (diningFilters.price !== 'all') {
+        dining = dining.filter(d => {
+          const price = d.price_level || d.price || '';
+          const dollarCount = (price.match(/\$/g) || []).length;
+          if (diningFilters.price === '$') return dollarCount === 1;
+          if (diningFilters.price === '$$') return dollarCount === 2;
+          if (diningFilters.price === '$$$') return dollarCount === 3;
+          if (diningFilters.price === '$$$$') return dollarCount === 4;
+          return true;
+        });
+      }
+      if (diningFilters.rating !== 'all') {
+        dining = dining.filter(d => {
+          const rating = parseFloat(d.rating) || 0;
+          if (diningFilters.rating === '4+') return rating >= 4;
+          if (diningFilters.rating === '4.5+') return rating >= 4.5;
+          return true;
+        });
+      }
+      return { dining };
+    }
+
+    if (activeCategory === 'events') {
+      let events = results.events || [];
+      if (eventFilters.category !== 'all') {
+        events = events.filter(e => e.category === eventFilters.category);
+      }
+      if (eventFilters.day !== 'all') {
+        events = events.filter(e => {
+          if (!e.date) return false;
+          const day = new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
+          return day === eventFilters.day;
+        });
+      }
+      return { events };
+    }
+
+    if (activeCategory === 'locations') {
+      let locations = results.locations || [];
+      if (placeFilters.category !== 'all') {
+        locations = locations.filter(l => l.category === placeFilters.category);
+      }
+      if (placeFilters.rating !== 'all') {
+        locations = locations.filter(l => {
+          const rating = parseFloat(l.rating) || 0;
+          if (placeFilters.rating === '4+') return rating >= 4;
+          if (placeFilters.rating === '4.5+') return rating >= 4.5;
+          return true;
+        });
+      }
+      return { locations };
+    }
+
     return { [activeCategory]: results[activeCategory] || [] };
   };
 
@@ -1124,6 +1290,266 @@ const WeekenderApp = () => {
                     </button>
                   ))}
                 </div>
+
+                {/* Category-Specific Filters */}
+                {activeCategory !== 'all' && (
+                  <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '32px',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                  }}>
+                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginRight: '4px' }}>Filter:</span>
+
+                    {/* Concert Filters */}
+                    {activeCategory === 'concerts' && (
+                      <>
+                        {filterOptions.genres?.length > 0 && (
+                          <select
+                            value={concertFilters.genre}
+                            onChange={(e) => setConcertFilters({...concertFilters, genre: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: concertFilters.genre !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: concertFilters.genre !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Genres</option>
+                            {filterOptions.genres.map(g => <option key={g} value={g}>{g}</option>)}
+                          </select>
+                        )}
+                        {filterOptions.concertDays?.length > 1 && (
+                          <select
+                            value={concertFilters.day}
+                            onChange={(e) => setConcertFilters({...concertFilters, day: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: concertFilters.day !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: concertFilters.day !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Days</option>
+                            {filterOptions.concertDays.map(d => <option key={d} value={d}>{d}</option>)}
+                          </select>
+                        )}
+                        <select
+                          value={concertFilters.time}
+                          onChange={(e) => setConcertFilters({...concertFilters, time: e.target.value})}
+                          style={{
+                            padding: '8px 12px',
+                            fontSize: '13px',
+                            background: concertFilters.time !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                            border: concertFilters.time !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '8px',
+                            color: '#FAFAFA',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <option value="all">Any Time</option>
+                          <option value="afternoon">Afternoon (before 6pm)</option>
+                          <option value="evening">Evening (6pm+)</option>
+                        </select>
+                      </>
+                    )}
+
+                    {/* Dining Filters */}
+                    {activeCategory === 'dining' && (
+                      <>
+                        {filterOptions.diningTypes?.length > 1 && (
+                          <select
+                            value={diningFilters.type}
+                            onChange={(e) => setDiningFilters({...diningFilters, type: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: diningFilters.type !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: diningFilters.type !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Types</option>
+                            <option value="Restaurant">Restaurants</option>
+                            <option value="Bar">Bars & Lounges</option>
+                          </select>
+                        )}
+                        {filterOptions.cuisines?.length > 0 && (
+                          <select
+                            value={diningFilters.cuisine}
+                            onChange={(e) => setDiningFilters({...diningFilters, cuisine: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: diningFilters.cuisine !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: diningFilters.cuisine !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Cuisines</option>
+                            {filterOptions.cuisines.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        )}
+                        <select
+                          value={diningFilters.price}
+                          onChange={(e) => setDiningFilters({...diningFilters, price: e.target.value})}
+                          style={{
+                            padding: '8px 12px',
+                            fontSize: '13px',
+                            background: diningFilters.price !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                            border: diningFilters.price !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '8px',
+                            color: '#FAFAFA',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <option value="all">Any Price</option>
+                          <option value="$">$ Budget</option>
+                          <option value="$$">$$ Moderate</option>
+                          <option value="$$$">$$$ Upscale</option>
+                          <option value="$$$$">$$$$ Fine Dining</option>
+                        </select>
+                        <select
+                          value={diningFilters.rating}
+                          onChange={(e) => setDiningFilters({...diningFilters, rating: e.target.value})}
+                          style={{
+                            padding: '8px 12px',
+                            fontSize: '13px',
+                            background: diningFilters.rating !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                            border: diningFilters.rating !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '8px',
+                            color: '#FAFAFA',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <option value="all">Any Rating</option>
+                          <option value="4+">4+ Stars</option>
+                          <option value="4.5+">4.5+ Stars</option>
+                        </select>
+                      </>
+                    )}
+
+                    {/* Event Filters */}
+                    {activeCategory === 'events' && (
+                      <>
+                        {filterOptions.eventCategories?.length > 0 && (
+                          <select
+                            value={eventFilters.category}
+                            onChange={(e) => setEventFilters({...eventFilters, category: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: eventFilters.category !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: eventFilters.category !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Types</option>
+                            {filterOptions.eventCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        )}
+                        {filterOptions.eventDays?.length > 1 && (
+                          <select
+                            value={eventFilters.day}
+                            onChange={(e) => setEventFilters({...eventFilters, day: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: eventFilters.day !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: eventFilters.day !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Days</option>
+                            {filterOptions.eventDays.map(d => <option key={d} value={d}>{d}</option>)}
+                          </select>
+                        )}
+                      </>
+                    )}
+
+                    {/* Places Filters */}
+                    {activeCategory === 'locations' && (
+                      <>
+                        {filterOptions.placeCategories?.length > 0 && (
+                          <select
+                            value={placeFilters.category}
+                            onChange={(e) => setPlaceFilters({...placeFilters, category: e.target.value})}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '13px',
+                              background: placeFilters.category !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                              border: placeFilters.category !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '8px',
+                              color: '#FAFAFA',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="all">All Types</option>
+                            {filterOptions.placeCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        )}
+                        <select
+                          value={placeFilters.rating}
+                          onChange={(e) => setPlaceFilters({...placeFilters, rating: e.target.value})}
+                          style={{
+                            padding: '8px 12px',
+                            fontSize: '13px',
+                            background: placeFilters.rating !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
+                            border: placeFilters.rating !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '8px',
+                            color: '#FAFAFA',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <option value="all">Any Rating</option>
+                          <option value="4+">4+ Stars</option>
+                          <option value="4.5+">4.5+ Stars</option>
+                        </select>
+                      </>
+                    )}
+
+                    {/* Clear Filters Button */}
+                    {((activeCategory === 'concerts' && (concertFilters.genre !== 'all' || concertFilters.day !== 'all' || concertFilters.time !== 'all')) ||
+                      (activeCategory === 'dining' && (diningFilters.type !== 'all' || diningFilters.cuisine !== 'all' || diningFilters.price !== 'all' || diningFilters.rating !== 'all')) ||
+                      (activeCategory === 'events' && (eventFilters.category !== 'all' || eventFilters.day !== 'all')) ||
+                      (activeCategory === 'locations' && (placeFilters.category !== 'all' || placeFilters.rating !== 'all'))) && (
+                      <button
+                        onClick={() => {
+                          if (activeCategory === 'concerts') setConcertFilters({ genre: 'all', day: 'all', time: 'all' });
+                          if (activeCategory === 'dining') setDiningFilters({ type: 'all', cuisine: 'all', price: 'all', rating: 'all' });
+                          if (activeCategory === 'events') setEventFilters({ category: 'all', day: 'all' });
+                          if (activeCategory === 'locations') setPlaceFilters({ category: 'all', rating: 'all' });
+                        }}
+                        style={{
+                          padding: '8px 12px',
+                          fontSize: '12px',
+                          background: 'transparent',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '8px',
+                          color: 'rgba(255,255,255,0.6)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Clear filters
+                      </button>
+                    )}
+                  </div>
+                )}
                 
                 {/* Results Grid */}
                 <div>
