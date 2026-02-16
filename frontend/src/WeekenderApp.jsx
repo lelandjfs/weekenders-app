@@ -19,95 +19,97 @@ const WeekenderApp = () => {
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSubscribeCitySuggestions, setShowSubscribeCitySuggestions] = useState(false);
-  
+  const [weatherData, setWeatherData] = useState(null);
+  const [selectedCityData, setSelectedCityData] = useState(null);
+
   const cityInputRef = useRef(null);
   const datePickerRef = useRef(null);
   const subscribeCityRef = useRef(null);
 
-  // Expanded city list - in production, connect to Google Places API or your agent's supported cities
+  // Expanded city list with coordinates for weather API
   const cities = [
     // California
-    { name: 'San Francisco', state: 'CA' },
-    { name: 'Los Angeles', state: 'CA' },
-    { name: 'San Diego', state: 'CA' },
-    { name: 'San Jose', state: 'CA' },
-    { name: 'Oakland', state: 'CA' },
-    { name: 'Sacramento', state: 'CA' },
-    { name: 'Santa Monica', state: 'CA' },
-    { name: 'Berkeley', state: 'CA' },
-    { name: 'Pasadena', state: 'CA' },
-    { name: 'Long Beach', state: 'CA' },
+    { name: 'San Francisco', state: 'CA', lat: 37.7749, lon: -122.4194 },
+    { name: 'Los Angeles', state: 'CA', lat: 34.0522, lon: -118.2437 },
+    { name: 'San Diego', state: 'CA', lat: 32.7157, lon: -117.1611 },
+    { name: 'San Jose', state: 'CA', lat: 37.3382, lon: -121.8863 },
+    { name: 'Oakland', state: 'CA', lat: 37.8044, lon: -122.2712 },
+    { name: 'Sacramento', state: 'CA', lat: 38.5816, lon: -121.4944 },
+    { name: 'Santa Monica', state: 'CA', lat: 34.0195, lon: -118.4912 },
+    { name: 'Berkeley', state: 'CA', lat: 37.8716, lon: -122.2727 },
+    { name: 'Pasadena', state: 'CA', lat: 34.1478, lon: -118.1445 },
+    { name: 'Long Beach', state: 'CA', lat: 33.7701, lon: -118.1937 },
     // New York
-    { name: 'New York', state: 'NY' },
-    { name: 'Brooklyn', state: 'NY' },
-    { name: 'Queens', state: 'NY' },
-    { name: 'Buffalo', state: 'NY' },
-    { name: 'Rochester', state: 'NY' },
+    { name: 'New York', state: 'NY', lat: 40.7128, lon: -74.0060 },
+    { name: 'Brooklyn', state: 'NY', lat: 40.6782, lon: -73.9442 },
+    { name: 'Queens', state: 'NY', lat: 40.7282, lon: -73.7949 },
+    { name: 'Buffalo', state: 'NY', lat: 42.8864, lon: -78.8784 },
+    { name: 'Rochester', state: 'NY', lat: 43.1566, lon: -77.6088 },
     // Texas
-    { name: 'Austin', state: 'TX' },
-    { name: 'Houston', state: 'TX' },
-    { name: 'Dallas', state: 'TX' },
-    { name: 'San Antonio', state: 'TX' },
-    { name: 'Fort Worth', state: 'TX' },
-    { name: 'El Paso', state: 'TX' },
+    { name: 'Austin', state: 'TX', lat: 30.2672, lon: -97.7431 },
+    { name: 'Houston', state: 'TX', lat: 29.7604, lon: -95.3698 },
+    { name: 'Dallas', state: 'TX', lat: 32.7767, lon: -96.7970 },
+    { name: 'San Antonio', state: 'TX', lat: 29.4241, lon: -98.4936 },
+    { name: 'Fort Worth', state: 'TX', lat: 32.7555, lon: -97.3308 },
+    { name: 'El Paso', state: 'TX', lat: 31.7619, lon: -106.4850 },
     // Pacific Northwest
-    { name: 'Seattle', state: 'WA' },
-    { name: 'Portland', state: 'OR' },
-    { name: 'Tacoma', state: 'WA' },
-    { name: 'Spokane', state: 'WA' },
-    { name: 'Eugene', state: 'OR' },
+    { name: 'Seattle', state: 'WA', lat: 47.6062, lon: -122.3321 },
+    { name: 'Portland', state: 'OR', lat: 45.5152, lon: -122.6784 },
+    { name: 'Tacoma', state: 'WA', lat: 47.2529, lon: -122.4443 },
+    { name: 'Spokane', state: 'WA', lat: 47.6588, lon: -117.4260 },
+    { name: 'Eugene', state: 'OR', lat: 44.0521, lon: -123.0868 },
     // Mountain
-    { name: 'Denver', state: 'CO' },
-    { name: 'Boulder', state: 'CO' },
-    { name: 'Salt Lake City', state: 'UT' },
-    { name: 'Phoenix', state: 'AZ' },
-    { name: 'Tucson', state: 'AZ' },
-    { name: 'Albuquerque', state: 'NM' },
-    { name: 'Santa Fe', state: 'NM' },
-    { name: 'Las Vegas', state: 'NV' },
-    { name: 'Reno', state: 'NV' },
+    { name: 'Denver', state: 'CO', lat: 39.7392, lon: -104.9903 },
+    { name: 'Boulder', state: 'CO', lat: 40.0150, lon: -105.2705 },
+    { name: 'Salt Lake City', state: 'UT', lat: 40.7608, lon: -111.8910 },
+    { name: 'Phoenix', state: 'AZ', lat: 33.4484, lon: -112.0740 },
+    { name: 'Tucson', state: 'AZ', lat: 32.2226, lon: -110.9747 },
+    { name: 'Albuquerque', state: 'NM', lat: 35.0844, lon: -106.6504 },
+    { name: 'Santa Fe', state: 'NM', lat: 35.6870, lon: -105.9378 },
+    { name: 'Las Vegas', state: 'NV', lat: 36.1699, lon: -115.1398 },
+    { name: 'Reno', state: 'NV', lat: 39.5296, lon: -119.8138 },
     // Midwest
-    { name: 'Chicago', state: 'IL' },
-    { name: 'Minneapolis', state: 'MN' },
-    { name: 'St. Paul', state: 'MN' },
-    { name: 'Detroit', state: 'MI' },
-    { name: 'Ann Arbor', state: 'MI' },
-    { name: 'Milwaukee', state: 'WI' },
-    { name: 'Madison', state: 'WI' },
-    { name: 'Cleveland', state: 'OH' },
-    { name: 'Columbus', state: 'OH' },
-    { name: 'Cincinnati', state: 'OH' },
-    { name: 'Indianapolis', state: 'IN' },
-    { name: 'Kansas City', state: 'MO' },
-    { name: 'St. Louis', state: 'MO' },
+    { name: 'Chicago', state: 'IL', lat: 41.8781, lon: -87.6298 },
+    { name: 'Minneapolis', state: 'MN', lat: 44.9778, lon: -93.2650 },
+    { name: 'St. Paul', state: 'MN', lat: 44.9537, lon: -93.0900 },
+    { name: 'Detroit', state: 'MI', lat: 42.3314, lon: -83.0458 },
+    { name: 'Ann Arbor', state: 'MI', lat: 42.2808, lon: -83.7430 },
+    { name: 'Milwaukee', state: 'WI', lat: 43.0389, lon: -87.9065 },
+    { name: 'Madison', state: 'WI', lat: 43.0731, lon: -89.4012 },
+    { name: 'Cleveland', state: 'OH', lat: 41.4993, lon: -81.6944 },
+    { name: 'Columbus', state: 'OH', lat: 39.9612, lon: -82.9988 },
+    { name: 'Cincinnati', state: 'OH', lat: 39.1031, lon: -84.5120 },
+    { name: 'Indianapolis', state: 'IN', lat: 39.7684, lon: -86.1581 },
+    { name: 'Kansas City', state: 'MO', lat: 39.0997, lon: -94.5786 },
+    { name: 'St. Louis', state: 'MO', lat: 38.6270, lon: -90.1994 },
     // Southeast
-    { name: 'Miami', state: 'FL' },
-    { name: 'Tampa', state: 'FL' },
-    { name: 'Orlando', state: 'FL' },
-    { name: 'Jacksonville', state: 'FL' },
-    { name: 'Atlanta', state: 'GA' },
-    { name: 'Savannah', state: 'GA' },
-    { name: 'Nashville', state: 'TN' },
-    { name: 'Memphis', state: 'TN' },
-    { name: 'New Orleans', state: 'LA' },
-    { name: 'Charlotte', state: 'NC' },
-    { name: 'Raleigh', state: 'NC' },
-    { name: 'Charleston', state: 'SC' },
-    { name: 'Richmond', state: 'VA' },
+    { name: 'Miami', state: 'FL', lat: 25.7617, lon: -80.1918 },
+    { name: 'Tampa', state: 'FL', lat: 27.9506, lon: -82.4572 },
+    { name: 'Orlando', state: 'FL', lat: 28.5383, lon: -81.3792 },
+    { name: 'Jacksonville', state: 'FL', lat: 30.3322, lon: -81.6557 },
+    { name: 'Atlanta', state: 'GA', lat: 33.7490, lon: -84.3880 },
+    { name: 'Savannah', state: 'GA', lat: 32.0809, lon: -81.0912 },
+    { name: 'Nashville', state: 'TN', lat: 36.1627, lon: -86.7816 },
+    { name: 'Memphis', state: 'TN', lat: 35.1495, lon: -90.0490 },
+    { name: 'New Orleans', state: 'LA', lat: 29.9511, lon: -90.0715 },
+    { name: 'Charlotte', state: 'NC', lat: 35.2271, lon: -80.8431 },
+    { name: 'Raleigh', state: 'NC', lat: 35.7796, lon: -78.6382 },
+    { name: 'Charleston', state: 'SC', lat: 32.7765, lon: -79.9311 },
+    { name: 'Richmond', state: 'VA', lat: 37.5407, lon: -77.4360 },
     // Northeast
-    { name: 'Boston', state: 'MA' },
-    { name: 'Cambridge', state: 'MA' },
-    { name: 'Philadelphia', state: 'PA' },
-    { name: 'Pittsburgh', state: 'PA' },
-    { name: 'Baltimore', state: 'MD' },
-    { name: 'Washington', state: 'DC' },
-    { name: 'Providence', state: 'RI' },
-    { name: 'Portland', state: 'ME' },
-    { name: 'Burlington', state: 'VT' },
-    { name: 'Newark', state: 'NJ' },
-    { name: 'Jersey City', state: 'NJ' },
-    { name: 'New Haven', state: 'CT' },
-    { name: 'Hartford', state: 'CT' },
+    { name: 'Boston', state: 'MA', lat: 42.3601, lon: -71.0589 },
+    { name: 'Cambridge', state: 'MA', lat: 42.3736, lon: -71.1097 },
+    { name: 'Philadelphia', state: 'PA', lat: 39.9526, lon: -75.1652 },
+    { name: 'Pittsburgh', state: 'PA', lat: 40.4406, lon: -79.9959 },
+    { name: 'Baltimore', state: 'MD', lat: 39.2904, lon: -76.6122 },
+    { name: 'Washington', state: 'DC', lat: 38.9072, lon: -77.0369 },
+    { name: 'Providence', state: 'RI', lat: 41.8240, lon: -71.4128 },
+    { name: 'Portland', state: 'ME', lat: 43.6591, lon: -70.2568 },
+    { name: 'Burlington', state: 'VT', lat: 44.4759, lon: -73.2121 },
+    { name: 'Newark', state: 'NJ', lat: 40.7357, lon: -74.1724 },
+    { name: 'Jersey City', state: 'NJ', lat: 40.7178, lon: -74.0431 },
+    { name: 'New Haven', state: 'CT', lat: 41.3083, lon: -72.9279 },
+    { name: 'Hartford', state: 'CT', lat: 41.7658, lon: -72.6734 },
   ];
 
   // Calculate dynamic weekend dates
@@ -148,11 +150,98 @@ const WeekenderApp = () => {
     `${city.name}, ${city.state}`.toLowerCase().includes(searchCity.toLowerCase())
   );
 
-  const filteredSubscribeCities = cities.filter(city => 
+  const filteredSubscribeCities = cities.filter(city =>
     city.name.toLowerCase().includes(subscribeCity.toLowerCase()) ||
     city.state.toLowerCase().includes(subscribeCity.toLowerCase()) ||
     `${city.name}, ${city.state}`.toLowerCase().includes(subscribeCity.toLowerCase())
   );
+
+  // WMO Weather code to icon/description mapping
+  const weatherCodeMap = {
+    0: { icon: '☀️', desc: 'Clear', color: '#FFD700' },
+    1: { icon: '🌤️', desc: 'Mostly Clear', color: '#FFD700' },
+    2: { icon: '⛅', desc: 'Partly Cloudy', color: '#87CEEB' },
+    3: { icon: '☁️', desc: 'Overcast', color: '#A9A9A9' },
+    45: { icon: '🌫️', desc: 'Foggy', color: '#C0C0C0' },
+    48: { icon: '🌫️', desc: 'Icy Fog', color: '#B0C4DE' },
+    51: { icon: '🌧️', desc: 'Light Drizzle', color: '#4682B4' },
+    53: { icon: '🌧️', desc: 'Drizzle', color: '#4682B4' },
+    55: { icon: '🌧️', desc: 'Heavy Drizzle', color: '#4169E1' },
+    61: { icon: '🌧️', desc: 'Light Rain', color: '#4682B4' },
+    63: { icon: '🌧️', desc: 'Rain', color: '#4169E1' },
+    65: { icon: '🌧️', desc: 'Heavy Rain', color: '#1E3A8A' },
+    66: { icon: '🌨️', desc: 'Freezing Rain', color: '#87CEEB' },
+    67: { icon: '🌨️', desc: 'Heavy Freezing Rain', color: '#6495ED' },
+    71: { icon: '❄️', desc: 'Light Snow', color: '#E0FFFF' },
+    73: { icon: '❄️', desc: 'Snow', color: '#ADD8E6' },
+    75: { icon: '❄️', desc: 'Heavy Snow', color: '#B0E0E6' },
+    77: { icon: '🌨️', desc: 'Snow Grains', color: '#F0F8FF' },
+    80: { icon: '🌦️', desc: 'Light Showers', color: '#6495ED' },
+    81: { icon: '🌦️', desc: 'Showers', color: '#4682B4' },
+    82: { icon: '⛈️', desc: 'Heavy Showers', color: '#4169E1' },
+    85: { icon: '🌨️', desc: 'Snow Showers', color: '#B0E0E6' },
+    86: { icon: '🌨️', desc: 'Heavy Snow Showers', color: '#87CEEB' },
+    95: { icon: '⛈️', desc: 'Thunderstorm', color: '#483D8B' },
+    96: { icon: '⛈️', desc: 'Thunderstorm + Hail', color: '#4B0082' },
+    99: { icon: '⛈️', desc: 'Heavy Thunderstorm', color: '#2F0854' },
+  };
+
+  const getWeatherInfo = (code) => {
+    return weatherCodeMap[code] || { icon: '🌡️', desc: 'Unknown', color: '#888' };
+  };
+
+  // Fetch weather when city and date are selected
+  const fetchWeather = async (cityData, dateOption) => {
+    if (!cityData || !cityData.lat || !cityData.lon) return;
+
+    // Get weekend dates based on selection
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    let daysUntilFriday = (5 - dayOfWeek + 7) % 7;
+    if (daysUntilFriday === 0 && today.getHours() >= 12) daysUntilFriday = 7;
+
+    const weeksMap = { 'this-weekend': 0, 'next-weekend': 1, 'two-weeks': 2 };
+    const weeksAhead = weeksMap[dateOption] ?? 0;
+    daysUntilFriday += weeksAhead * 7;
+
+    const friday = new Date(today);
+    friday.setDate(today.getDate() + daysUntilFriday);
+    const sunday = new Date(friday);
+    sunday.setDate(friday.getDate() + 2);
+
+    const formatDate = (d) => d.toISOString().split('T')[0];
+    const startDate = formatDate(friday);
+    const endDate = formatDate(sunday);
+
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${cityData.lat}&longitude=${cityData.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&temperature_unit=fahrenheit&timezone=auto&start_date=${startDate}&end_date=${endDate}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.daily) {
+        const days = data.daily.time.map((date, i) => ({
+          date,
+          dayName: new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' }),
+          weatherCode: data.daily.weather_code[i],
+          high: Math.round(data.daily.temperature_2m_max[i]),
+          low: Math.round(data.daily.temperature_2m_min[i]),
+          wind: Math.round(data.daily.wind_speed_10m_max[i]),
+        }));
+        setWeatherData(days);
+      }
+    } catch (error) {
+      console.log('Weather fetch error:', error);
+      setWeatherData(null);
+    }
+  };
+
+  // Fetch weather when search completes
+  useEffect(() => {
+    if (hasResults && selectedCityData && searchDate !== 'custom') {
+      fetchWeather(selectedCityData, searchDate);
+    }
+  }, [hasResults, selectedCityData, searchDate]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -277,6 +366,7 @@ const WeekenderApp = () => {
 
   const selectCity = (city) => {
     setSearchCity(`${city.name}, ${city.state}`);
+    setSelectedCityData(city);
     setShowCitySuggestions(false);
   };
 
@@ -456,227 +546,108 @@ const WeekenderApp = () => {
       {/* Main Content */}
       <main style={{ padding: '48px 40px', maxWidth: '1400px', margin: '0 auto' }}>
         {activeTab === 'subscribe' ? (
-          /* Subscribe Tab */
+          /* Subscribe Tab - Coming Soon */
           <div style={{
             maxWidth: '560px',
             margin: '80px auto',
             textAlign: 'center',
           }}>
-            {!subscribed ? (
-              <>
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  background: 'linear-gradient(135deg, #FF6B35 0%, #F7C59F 100%)',
-                  borderRadius: '24px',
-                  margin: '0 auto 32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '36px',
-                }}>✉</div>
-                <h1 style={{
-                  fontSize: '42px',
-                  fontWeight: '700',
-                  letterSpacing: '-0.03em',
-                  marginBottom: '16px',
-                  lineHeight: '1.1',
-                }}>Your weekend,<br />curated weekly</h1>
-                <p style={{
-                  fontSize: '17px',
-                  color: 'rgba(255,255,255,0.5)',
-                  marginBottom: '48px',
-                  lineHeight: '1.6',
-                }}>
-                  Get personalized recommendations for concerts, restaurants, events, and hidden gems delivered every Thursday.
-                </p>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={subscribeEmail}
-                    onChange={(e) => setSubscribeEmail(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '18px 24px',
-                      fontSize: '16px',
-                      border: '2px solid rgba(255,255,255,0.1)',
-                      borderRadius: '14px',
-                      background: 'rgba(255,255,255,0.03)',
-                      color: '#FAFAFA',
-                      outline: 'none',
-                      transition: 'border-color 0.2s',
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.3)'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-                  />
-                  
-                  {/* City Autocomplete for Subscribe */}
-                  <div ref={subscribeCityRef} style={{ position: 'relative' }}>
-                    <input
-                      type="text"
-                      placeholder="Search for a city..."
-                      value={subscribeCity}
-                      onChange={(e) => {
-                        setSubscribeCity(e.target.value);
-                        setShowSubscribeCitySuggestions(true);
-                      }}
-                      onFocus={() => setShowSubscribeCitySuggestions(true)}
-                      style={{
-                        width: '100%',
-                        padding: '18px 24px',
-                        fontSize: '16px',
-                        border: '2px solid rgba(255,255,255,0.1)',
-                        borderRadius: '14px',
-                        background: 'rgba(255,255,255,0.03)',
-                        color: '#FAFAFA',
-                        outline: 'none',
-                        transition: 'border-color 0.2s',
-                      }}
-                    />
-                    {showSubscribeCitySuggestions && subscribeCity && filteredSubscribeCities.length > 0 && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        marginTop: '8px',
-                        background: '#1A1A1A',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '14px',
-                        overflow: 'hidden',
-                        zIndex: 100,
-                        maxHeight: '280px',
-                        overflowY: 'auto',
-                        animation: 'slideDown 0.15s ease',
-                      }}>
-                        {filteredSubscribeCities.slice(0, 8).map((city, i) => (
-                          <button
-                            key={`${city.name}-${city.state}`}
-                            onClick={() => selectSubscribeCity(city)}
-                            style={{
-                              width: '100%',
-                              padding: '14px 24px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              background: 'transparent',
-                              border: 'none',
-                              borderBottom: i < Math.min(filteredSubscribeCities.length, 8) - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                              color: '#FAFAFA',
-                              fontSize: '15px',
-                              cursor: 'pointer',
-                              textAlign: 'left',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '18px' }}>◎</span>
-                            <span>{city.name}</span>
-                            <span style={{ color: 'rgba(255,255,255,0.4)', marginLeft: 'auto' }}>{city.state}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <button
-                    onClick={handleSubscribe}
-                    disabled={isSubscribing || !subscribeEmail || !subscribeCity}
-                    style={{
-                      width: '100%',
-                      padding: '18px 24px',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      border: 'none',
-                      borderRadius: '14px',
-                      background: (isSubscribing || !subscribeEmail || !subscribeCity)
-                        ? 'rgba(255,255,255,0.1)'
-                        : 'linear-gradient(135deg, #FF6B35 0%, #FF8F5F 100%)',
-                      color: (isSubscribing || !subscribeEmail || !subscribeCity)
-                        ? 'rgba(255,255,255,0.3)'
-                        : '#FAFAFA',
-                      cursor: (isSubscribing || !subscribeEmail || !subscribeCity)
-                        ? 'not-allowed'
-                        : 'pointer',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSubscribing && subscribeEmail && subscribeCity) {
-                        e.target.style.transform = 'translateY(-2px)';
-                        e.target.style.boxShadow = '0 8px 24px rgba(255,107,53,0.3)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = 'none';
-                    }}
-                  >
-                    {isSubscribing ? (
-                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                        <span style={{
-                          width: '18px',
-                          height: '18px',
-                          border: '2px solid rgba(255,255,255,0.3)',
-                          borderTopColor: '#FAFAFA',
-                          borderRadius: '50%',
-                          animation: 'spin 0.8s linear infinite',
-                        }} />
-                        Subscribing...
-                      </span>
-                    ) : 'Subscribe to Weekly Digest'}
-                  </button>
+            {/* Coming Soon Banner */}
+            <div style={{
+              display: 'inline-block',
+              padding: '8px 20px',
+              background: 'linear-gradient(135deg, rgba(255,107,53,0.15) 0%, rgba(247,197,159,0.15) 100%)',
+              border: '1px solid rgba(255,107,53,0.3)',
+              borderRadius: '100px',
+              marginBottom: '32px',
+            }}>
+              <span style={{
+                fontSize: '13px',
+                fontWeight: '600',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                background: 'linear-gradient(135deg, #FF6B35 0%, #F7C59F 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>Coming Soon</span>
+            </div>
 
-                  {subscribeError && (
-                    <p style={{
-                      fontSize: '14px',
-                      color: '#F87171',
-                      marginTop: '12px',
-                      textAlign: 'center',
-                    }}>
-                      {subscribeError}
-                    </p>
-                  )}
-                </div>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, #FF6B35 0%, #F7C59F 100%)',
+              borderRadius: '24px',
+              margin: '0 auto 32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '36px',
+              opacity: 0.8,
+            }}>✉</div>
 
-                <p style={{
-                  fontSize: '13px',
-                  color: 'rgba(255,255,255,0.3)',
-                  marginTop: '24px',
-                }}>
-                  Sources: Ticketmaster • Google Places • Eater • The Infatuation • Reddit • Atlas Obscura
-                </p>
-              </>
-            ) : (
-              <div style={{ animation: 'fadeIn 0.5s ease' }}>
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  background: 'linear-gradient(135deg, #22C55E 0%, #86EFAC 100%)',
-                  borderRadius: '24px',
-                  margin: '0 auto 32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '36px',
-                }}>✓</div>
-                <h1 style={{
-                  fontSize: '42px',
-                  fontWeight: '700',
-                  letterSpacing: '-0.03em',
-                  marginBottom: '16px',
-                }}>You're in!</h1>
-                <p style={{
-                  fontSize: '17px',
-                  color: 'rgba(255,255,255,0.5)',
-                  lineHeight: '1.6',
-                }}>
-                  We'll send your first curated weekend guide for <strong style={{ color: '#FAFAFA' }}>{subscribeCity}</strong> this Thursday.
-                </p>
+            <h1 style={{
+              fontSize: '42px',
+              fontWeight: '700',
+              letterSpacing: '-0.03em',
+              marginBottom: '16px',
+              lineHeight: '1.1',
+            }}>Your weekend,<br />curated weekly</h1>
+
+            <p style={{
+              fontSize: '17px',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '32px',
+              lineHeight: '1.6',
+            }}>
+              Get personalized recommendations for concerts, restaurants, events, and hidden gems delivered every Thursday.
+            </p>
+
+            {/* Feature Preview */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              padding: '32px',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '20px',
+              marginBottom: '32px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
+                <span style={{ fontSize: '24px' }}>🎸</span>
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Weekly concert picks tailored to your taste</span>
               </div>
-            )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
+                <span style={{ fontSize: '24px' }}>🍽</span>
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>New restaurant openings and hidden gems</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
+                <span style={{ fontSize: '24px' }}>🎭</span>
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Local events, festivals, and activities</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
+                <span style={{ fontSize: '24px' }}>📍</span>
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Unique spots that tourists miss</span>
+              </div>
+            </div>
+
+            <p style={{
+              fontSize: '15px',
+              color: 'rgba(255,255,255,0.4)',
+              lineHeight: '1.6',
+            }}>
+              We're putting the finishing touches on our weekly digest.<br />
+              Check back soon!
+            </p>
+
+            <p style={{
+              fontSize: '13px',
+              color: 'rgba(255,255,255,0.3)',
+              marginTop: '32px',
+            }}>
+              Sources: Ticketmaster • Google Places • Eater • The Infatuation • Reddit • Atlas Obscura
+            </p>
           </div>
         ) : (
           /* Search Tab */
@@ -1012,7 +983,7 @@ const WeekenderApp = () => {
                     </p>
                   </div>
                   <button
-                    onClick={() => { setHasResults(false); setSearchCity(''); setResults(null); setActiveCategory('all'); }}
+                    onClick={() => { setHasResults(false); setSearchCity(''); setResults(null); setActiveCategory('all'); setWeatherData(null); setSelectedCityData(null); }}
                     style={{
                       padding: '12px 20px',
                       fontSize: '14px',
@@ -1027,6 +998,73 @@ const WeekenderApp = () => {
                     New Search
                   </button>
                 </div>
+
+                {/* Weekend Weather Bar */}
+                {weatherData && weatherData.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '24px',
+                    padding: '16px 20px',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '14px',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                  }}>
+                    {weatherData.map((day, i) => {
+                      const weather = getWeatherInfo(day.weatherCode);
+                      return (
+                        <div
+                          key={day.date}
+                          style={{
+                            flex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            padding: '8px 16px',
+                            background: i === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                            borderRadius: '10px',
+                          }}
+                        >
+                          <span style={{ fontSize: '28px' }}>{weather.icon}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              color: '#FAFAFA',
+                              marginBottom: '2px',
+                            }}>{day.dayName}</div>
+                            <div style={{
+                              fontSize: '12px',
+                              color: 'rgba(255,255,255,0.5)',
+                            }}>{weather.desc}</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{
+                              fontSize: '15px',
+                              fontWeight: '600',
+                              color: '#FAFAFA',
+                            }}>{day.high}°</div>
+                            <div style={{
+                              fontSize: '12px',
+                              color: 'rgba(255,255,255,0.4)',
+                            }}>{day.low}°</div>
+                          </div>
+                          {day.wind > 15 && (
+                            <div style={{
+                              fontSize: '11px',
+                              color: 'rgba(255,255,255,0.4)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                            }}>
+                              💨 {day.wind}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Error Banner */}
                 {results?.errors && results.errors.length > 0 && (
