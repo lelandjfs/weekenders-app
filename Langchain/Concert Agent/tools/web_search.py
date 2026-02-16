@@ -14,7 +14,7 @@ from langsmith import traceable
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "weekender"))
-from parallel_search import search_concerts, get_page_contents
+from parallel_search import search_concerts, get_page_contents, discover_venues as _discover_venues
 
 
 class WebSearchConcertsInput(BaseModel):
@@ -22,6 +22,12 @@ class WebSearchConcertsInput(BaseModel):
     city: str = Field(description="City name to search for")
     start_date: str = Field(description="Start date (YYYY-MM-DD)")
     end_date: str = Field(description="End date (YYYY-MM-DD)")
+
+
+class VenueDiscoveryInput(BaseModel):
+    """Input schema for venue discovery."""
+    city: str = Field(description="City name to discover venues for")
+    max_venues: int = Field(default=5, description="Maximum number of venues to discover")
 
 
 @tool(args_schema=WebSearchConcertsInput)
@@ -61,3 +67,28 @@ def search_web_concerts(
     print(f"   -> Extracted content from {len(page_contents)} sources")
 
     return page_contents
+
+
+@tool(args_schema=VenueDiscoveryInput)
+@traceable(name="parallel_discover_venues", run_type="tool")
+def discover_venues(city: str, max_venues: int = 5) -> List[str]:
+    """
+    Discover indie/small concert venues for any city using Parallel AI.
+
+    Searches across multiple genres (indie, EDM, jazz, blues)
+    to find venue names.
+
+    Args:
+        city: City name to discover venues for
+        max_venues: Maximum number of venues to return
+
+    Returns:
+        List of venue names discovered for the city
+    """
+    print(f"   -> Discovering venues in {city} via Parallel AI...")
+
+    venues = _discover_venues(city, max_venues)
+
+    print(f"   -> Found {len(venues)} venues")
+
+    return venues

@@ -13,8 +13,9 @@ Benefits:
 """
 
 import os
+import re
 import requests
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -240,3 +241,84 @@ def get_page_contents(results: List[Dict[str, Any]]) -> List[str]:
         page_contents.append("\n".join(content_parts))
 
     return page_contents
+
+
+def discover_venues(city: str, max_venues: int = 5) -> List[str]:
+    """
+    Discover indie/small concert venues for any city.
+
+    Searches for specific venue lists using Parallel AI.
+
+    Args:
+        city: City name to discover venues for
+        max_venues: Maximum number of venues to return
+
+    Returns:
+        List of venue names discovered for the city
+    """
+    objective = f"Find a list of specific venue names for live music and concerts in {city}. I need actual venue names like The Fillmore, Bottom of the Hill, The Independent, etc."
+
+    queries = [
+        f"list of concert venues {city}",
+        f"best live music venues {city} names",
+        f"indie rock venues {city}",
+        f"small concert halls {city}"
+    ]
+
+    result = search_web(objective, queries, max_results=10)
+
+    # Extract venue names from results
+    venue_candidates: Set[str] = set()
+
+    for item in result.get("results", []):
+        title = item.get("title", "")
+        excerpts = item.get("excerpts", [])
+
+        # Extract from title and excerpts
+        text = f"{title} {' '.join(excerpts)}"
+        venue_candidates.update(_extract_venues_from_text(text))
+
+    return list(venue_candidates)[:max_venues]
+
+
+def _extract_venues_from_text(text: str) -> Set[str]:
+    """Extract venue names from text using regex patterns."""
+    venue_candidates: Set[str] = set()
+
+    # Patterns for venue names
+    patterns = [
+        r"The [A-Z][a-z]+(?:\s[A-Z][a-z]+)?(?:\s[A-Z][a-z]+)?",  # The Fillmore, The Great American Music Hall
+        r"[A-Z][a-z]+(?:\s[A-Z][a-z]+)?\s(?:Club|Hall|Theater|Theatre|Room|Lounge|Ballroom|Arena)",
+        r"[A-Z][a-z]+\'s(?:\s[A-Z][a-z]+)?",  # Slim's, Bimbo's 365 Club
+    ]
+
+    # Words/phrases to skip (including common band names that look like venues)
+    skip_phrases = [
+        "the city", "the best", "the top", "the most", "the new", "the first",
+        "the bay", "the san", "the area", "the world", "the music", "the show",
+        "the night", "the live", "the local", "the indie", "the jazz",
+        "hottest bar", "wine bar", "sports bar", "items found", "newsletter",
+        "nightlife", "the drowns", "the arena",
+        # Common band names that match venue patterns
+        "the strokes", "the national", "the killers", "the lumineers",
+        "the grateful dead", "the rolling stones", "the beatles", "the who",
+        "the doors", "the cure", "the smiths", "the clash", "the pixies",
+    ]
+
+    for pattern in patterns:
+        matches = re.findall(pattern, text)
+        for match in matches:
+            cleaned = match.strip()
+            # Skip if too short, too long, or in skip list
+            if len(cleaned) < 4 or len(cleaned) > 40:
+                continue
+            if cleaned.lower() in skip_phrases:
+                continue
+            if any(skip in cleaned.lower() for skip in skip_phrases):
+                continue
+            # Skip if contains newlines
+            if "\n" in cleaned:
+                continue
+            venue_candidates.add(cleaned)
+
+    return venue_candidates
