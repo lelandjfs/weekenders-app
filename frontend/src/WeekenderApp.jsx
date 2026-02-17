@@ -200,23 +200,30 @@ const WeekenderApp = () => {
   const fetchWeather = async (cityData, dateOption) => {
     if (!cityData || !cityData.lat || !cityData.lon) return;
 
-    // Get weekend dates based on selection
+    // Get weekend dates based on selection (Thu-Sun)
     const today = new Date();
     const dayOfWeek = today.getDay();
-    let daysUntilFriday = (5 - dayOfWeek + 7) % 7;
-    if (daysUntilFriday === 0 && today.getHours() >= 12) daysUntilFriday = 7;
+    // Thursday is day 4
+    let daysUntilThursday = (4 - dayOfWeek + 7) % 7;
+    if (daysUntilThursday === 0 && today.getHours() >= 12) daysUntilThursday = 7;
 
     const weeksMap = { 'this-weekend': 0, 'next-weekend': 1, 'two-weeks': 2 };
     const weeksAhead = weeksMap[dateOption] ?? 0;
-    daysUntilFriday += weeksAhead * 7;
+    daysUntilThursday += weeksAhead * 7;
 
-    const friday = new Date(today);
-    friday.setDate(today.getDate() + daysUntilFriday);
-    const sunday = new Date(friday);
-    sunday.setDate(friday.getDate() + 2);
+    // Check if date is too far out for forecast (Open-Meteo supports 16 days)
+    if (daysUntilThursday > 12) {
+      setWeatherData('unavailable');
+      return;
+    }
+
+    const thursday = new Date(today);
+    thursday.setDate(today.getDate() + daysUntilThursday);
+    const sunday = new Date(thursday);
+    sunday.setDate(thursday.getDate() + 3);
 
     const formatDate = (d) => d.toISOString().split('T')[0];
-    const startDate = formatDate(friday);
+    const startDate = formatDate(thursday);
     const endDate = formatDate(sunday);
 
     try {
@@ -225,7 +232,7 @@ const WeekenderApp = () => {
       const response = await fetch(url);
       const data = await response.json();
 
-      if (data.daily) {
+      if (data.daily && data.daily.time) {
         const days = data.daily.time.map((date, i) => ({
           date,
           dayName: new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' }),
@@ -235,10 +242,12 @@ const WeekenderApp = () => {
           wind: Math.round(data.daily.wind_speed_10m_max[i]),
         }));
         setWeatherData(days);
+      } else {
+        setWeatherData('unavailable');
       }
     } catch (error) {
       console.log('Weather fetch error:', error);
-      setWeatherData(null);
+      setWeatherData('unavailable');
     }
   };
 
@@ -526,15 +535,6 @@ const WeekenderApp = () => {
 
     if (activeCategory === 'dining') {
       let dining = results.dining || [];
-      if (diningFilters.type !== 'all') {
-        dining = dining.filter(d => {
-          const name = (d.name || '').toLowerCase();
-          const cuisine = (d.cuisine || '').toLowerCase();
-          const isBar = name.includes('bar') || cuisine.includes('bar') || cuisine.includes('cocktail') || cuisine.includes('wine');
-          if (diningFilters.type === 'Bar') return isBar;
-          return !isBar;
-        });
-      }
       if (diningFilters.cuisine !== 'all') {
         dining = dining.filter(d => d.cuisine === diningFilters.cuisine);
       }
@@ -768,35 +768,6 @@ const WeekenderApp = () => {
             }}>
               Get personalized recommendations for concerts, restaurants, events, and hidden gems delivered every Thursday.
             </p>
-
-            {/* Feature Preview */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              padding: '32px',
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '20px',
-              marginBottom: '32px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
-                <span style={{ fontSize: '24px' }}>🎸</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Weekly concert picks tailored to your taste</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
-                <span style={{ fontSize: '24px' }}>🍽</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>New restaurant openings and hidden gems</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
-                <span style={{ fontSize: '24px' }}>🎭</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Local events, festivals, and activities</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
-                <span style={{ fontSize: '24px' }}>📍</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Unique spots that tourists miss</span>
-              </div>
-            </div>
 
             <p style={{
               fontSize: '15px',
@@ -1166,17 +1137,31 @@ const WeekenderApp = () => {
                 </div>
 
                 {/* Weekend Weather Bar */}
-                {weatherData && weatherData.length > 0 && (
+                {weatherData === 'unavailable' && (
+                  <div style={{
+                    marginBottom: '24px',
+                    padding: '12px 20px',
+                    background: 'rgba(255,255,255,0.02)',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.04)',
+                    color: 'rgba(255,255,255,0.4)',
+                    fontSize: '13px',
+                    textAlign: 'center',
+                  }}>
+                    Weather forecast not yet available for this date range
+                  </div>
+                )}
+                {weatherData && Array.isArray(weatherData) && weatherData.length > 0 && (
                   <div style={{
                     display: 'flex',
-                    gap: '12px',
+                    gap: '8px',
                     marginBottom: '24px',
-                    padding: '16px 20px',
+                    padding: '12px 16px',
                     background: 'rgba(255,255,255,0.03)',
                     borderRadius: '14px',
                     border: '1px solid rgba(255,255,255,0.06)',
                   }}>
-                    {weatherData.map((day, i) => {
+                    {weatherData.map((day) => {
                       const weather = getWeatherInfo(day.weatherCode);
                       return (
                         <div
@@ -1185,13 +1170,12 @@ const WeekenderApp = () => {
                             flex: 1,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
-                            padding: '8px 16px',
-                            background: i === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                            gap: '10px',
+                            padding: '8px 12px',
                             borderRadius: '10px',
                           }}
                         >
-                          <span style={{ fontSize: '28px' }}>{weather.icon}</span>
+                          <span style={{ fontSize: '24px' }}>{weather.icon}</span>
                           <div style={{ flex: 1 }}>
                             <div style={{
                               fontSize: '13px',
@@ -1200,30 +1184,28 @@ const WeekenderApp = () => {
                               marginBottom: '2px',
                             }}>{day.dayName}</div>
                             <div style={{
-                              fontSize: '12px',
+                              fontSize: '11px',
                               color: 'rgba(255,255,255,0.5)',
                             }}>{weather.desc}</div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <div style={{
-                              fontSize: '15px',
+                              fontSize: '14px',
                               fontWeight: '600',
                               color: '#FAFAFA',
                             }}>{day.high}°</div>
                             <div style={{
-                              fontSize: '12px',
+                              fontSize: '11px',
                               color: 'rgba(255,255,255,0.4)',
                             }}>{day.low}°</div>
                           </div>
-                          {day.wind > 15 && (
+                          {day.wind > 20 && (
                             <div style={{
-                              fontSize: '11px',
+                              fontSize: '10px',
                               color: 'rgba(255,255,255,0.4)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '3px',
+                              whiteSpace: 'nowrap',
                             }}>
-                              💨 {day.wind}
+                              {day.wind} mph
                             </div>
                           )}
                         </div>
@@ -1295,258 +1277,259 @@ const WeekenderApp = () => {
                 {activeCategory !== 'all' && (
                   <div style={{
                     display: 'flex',
-                    gap: '12px',
+                    gap: '8px',
                     marginBottom: '32px',
                     flexWrap: 'wrap',
                     alignItems: 'center',
                   }}>
-                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginRight: '4px' }}>Filter:</span>
-
                     {/* Concert Filters */}
                     {activeCategory === 'concerts' && (
                       <>
-                        {filterOptions.genres?.length > 0 && (
-                          <select
-                            value={concertFilters.genre}
-                            onChange={(e) => setConcertFilters({...concertFilters, genre: e.target.value})}
+                        {filterOptions.genres?.length > 0 && filterOptions.genres.map(genre => (
+                          <button
+                            key={genre}
+                            onClick={() => setConcertFilters({...concertFilters, genre: concertFilters.genre === genre ? 'all' : genre})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: concertFilters.genre !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: concertFilters.genre !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: concertFilters.genre === genre ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: concertFilters.genre === genre ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: concertFilters.genre === genre ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Genres</option>
-                            {filterOptions.genres.map(g => <option key={g} value={g}>{g}</option>)}
-                          </select>
-                        )}
-                        {filterOptions.concertDays?.length > 1 && (
-                          <select
-                            value={concertFilters.day}
-                            onChange={(e) => setConcertFilters({...concertFilters, day: e.target.value})}
+                            {genre}
+                          </button>
+                        ))}
+                        {filterOptions.genres?.length > 0 && <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />}
+                        {filterOptions.concertDays?.length > 1 && filterOptions.concertDays.map(day => (
+                          <button
+                            key={day}
+                            onClick={() => setConcertFilters({...concertFilters, day: concertFilters.day === day ? 'all' : day})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: concertFilters.day !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: concertFilters.day !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: concertFilters.day === day ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: concertFilters.day === day ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: concertFilters.day === day ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Days</option>
-                            {filterOptions.concertDays.map(d => <option key={d} value={d}>{d}</option>)}
-                          </select>
-                        )}
-                        <select
-                          value={concertFilters.time}
-                          onChange={(e) => setConcertFilters({...concertFilters, time: e.target.value})}
-                          style={{
-                            padding: '8px 12px',
-                            fontSize: '13px',
-                            background: concertFilters.time !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                            border: concertFilters.time !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '8px',
-                            color: '#FAFAFA',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <option value="all">Any Time</option>
-                          <option value="afternoon">Afternoon (before 6pm)</option>
-                          <option value="evening">Evening (6pm+)</option>
-                        </select>
+                            {day}
+                          </button>
+                        ))}
+                        {['Evening', 'Afternoon'].map(time => (
+                          <button
+                            key={time}
+                            onClick={() => setConcertFilters({...concertFilters, time: concertFilters.time === time.toLowerCase() ? 'all' : time.toLowerCase()})}
+                            style={{
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: concertFilters.time === time.toLowerCase() ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: concertFilters.time === time.toLowerCase() ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: concertFilters.time === time.toLowerCase() ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            {time}
+                          </button>
+                        ))}
                       </>
                     )}
 
-                    {/* Dining Filters */}
+                    {/* Dining Filters - Show all cuisine types as pills */}
                     {activeCategory === 'dining' && (
                       <>
-                        {filterOptions.diningTypes?.length > 1 && (
-                          <select
-                            value={diningFilters.type}
-                            onChange={(e) => setDiningFilters({...diningFilters, type: e.target.value})}
+                        {filterOptions.cuisines?.length > 0 && filterOptions.cuisines.map(cuisine => (
+                          <button
+                            key={cuisine}
+                            onClick={() => setDiningFilters({...diningFilters, cuisine: diningFilters.cuisine === cuisine ? 'all' : cuisine})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: diningFilters.type !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: diningFilters.type !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: diningFilters.cuisine === cuisine ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: diningFilters.cuisine === cuisine ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: diningFilters.cuisine === cuisine ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Types</option>
-                            <option value="Restaurant">Restaurants</option>
-                            <option value="Bar">Bars & Lounges</option>
-                          </select>
-                        )}
-                        {filterOptions.cuisines?.length > 0 && (
-                          <select
-                            value={diningFilters.cuisine}
-                            onChange={(e) => setDiningFilters({...diningFilters, cuisine: e.target.value})}
+                            {cuisine}
+                          </button>
+                        ))}
+                        {filterOptions.cuisines?.length > 0 && <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />}
+                        {['$', '$$', '$$$', '$$$$'].map(price => (
+                          <button
+                            key={price}
+                            onClick={() => setDiningFilters({...diningFilters, price: diningFilters.price === price ? 'all' : price})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: diningFilters.cuisine !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: diningFilters.cuisine !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 14px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: diningFilters.price === price ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: diningFilters.price === price ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: diningFilters.price === price ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Cuisines</option>
-                            {filterOptions.cuisines.map(c => <option key={c} value={c}>{c}</option>)}
-                          </select>
-                        )}
-                        <select
-                          value={diningFilters.price}
-                          onChange={(e) => setDiningFilters({...diningFilters, price: e.target.value})}
-                          style={{
-                            padding: '8px 12px',
-                            fontSize: '13px',
-                            background: diningFilters.price !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                            border: diningFilters.price !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '8px',
-                            color: '#FAFAFA',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <option value="all">Any Price</option>
-                          <option value="$">$ Budget</option>
-                          <option value="$$">$$ Moderate</option>
-                          <option value="$$$">$$$ Upscale</option>
-                          <option value="$$$$">$$$$ Fine Dining</option>
-                        </select>
-                        <select
-                          value={diningFilters.rating}
-                          onChange={(e) => setDiningFilters({...diningFilters, rating: e.target.value})}
-                          style={{
-                            padding: '8px 12px',
-                            fontSize: '13px',
-                            background: diningFilters.rating !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                            border: diningFilters.rating !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '8px',
-                            color: '#FAFAFA',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <option value="all">Any Rating</option>
-                          <option value="4+">4+ Stars</option>
-                          <option value="4.5+">4.5+ Stars</option>
-                        </select>
+                            {price}
+                          </button>
+                        ))}
+                        <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+                        {['4+', '4.5+'].map(rating => (
+                          <button
+                            key={rating}
+                            onClick={() => setDiningFilters({...diningFilters, rating: diningFilters.rating === rating ? 'all' : rating})}
+                            style={{
+                              padding: '8px 14px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: diningFilters.rating === rating ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: diningFilters.rating === rating ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: diningFilters.rating === rating ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            {rating} ★
+                          </button>
+                        ))}
                       </>
                     )}
 
                     {/* Event Filters */}
                     {activeCategory === 'events' && (
                       <>
-                        {filterOptions.eventCategories?.length > 0 && (
-                          <select
-                            value={eventFilters.category}
-                            onChange={(e) => setEventFilters({...eventFilters, category: e.target.value})}
+                        {filterOptions.eventCategories?.length > 0 && filterOptions.eventCategories.map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => setEventFilters({...eventFilters, category: eventFilters.category === cat ? 'all' : cat})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: eventFilters.category !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: eventFilters.category !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: eventFilters.category === cat ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: eventFilters.category === cat ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: eventFilters.category === cat ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Types</option>
-                            {filterOptions.eventCategories.map(c => <option key={c} value={c}>{c}</option>)}
-                          </select>
-                        )}
-                        {filterOptions.eventDays?.length > 1 && (
-                          <select
-                            value={eventFilters.day}
-                            onChange={(e) => setEventFilters({...eventFilters, day: e.target.value})}
+                            {cat}
+                          </button>
+                        ))}
+                        {filterOptions.eventCategories?.length > 0 && filterOptions.eventDays?.length > 1 && <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />}
+                        {filterOptions.eventDays?.length > 1 && filterOptions.eventDays.map(day => (
+                          <button
+                            key={day}
+                            onClick={() => setEventFilters({...eventFilters, day: eventFilters.day === day ? 'all' : day})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: eventFilters.day !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: eventFilters.day !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: eventFilters.day === day ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: eventFilters.day === day ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: eventFilters.day === day ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Days</option>
-                            {filterOptions.eventDays.map(d => <option key={d} value={d}>{d}</option>)}
-                          </select>
-                        )}
+                            {day}
+                          </button>
+                        ))}
                       </>
                     )}
 
                     {/* Places Filters */}
                     {activeCategory === 'locations' && (
                       <>
-                        {filterOptions.placeCategories?.length > 0 && (
-                          <select
-                            value={placeFilters.category}
-                            onChange={(e) => setPlaceFilters({...placeFilters, category: e.target.value})}
+                        {filterOptions.placeCategories?.length > 0 && filterOptions.placeCategories.map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => setPlaceFilters({...placeFilters, category: placeFilters.category === cat ? 'all' : cat})}
                             style={{
-                              padding: '8px 12px',
-                              fontSize: '13px',
-                              background: placeFilters.category !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                              border: placeFilters.category !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              color: '#FAFAFA',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: placeFilters.category === cat ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: placeFilters.category === cat ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: placeFilters.category === cat ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
+                              transition: 'all 0.15s',
                             }}
                           >
-                            <option value="all">All Types</option>
-                            {filterOptions.placeCategories.map(c => <option key={c} value={c}>{c}</option>)}
-                          </select>
-                        )}
-                        <select
-                          value={placeFilters.rating}
-                          onChange={(e) => setPlaceFilters({...placeFilters, rating: e.target.value})}
-                          style={{
-                            padding: '8px 12px',
-                            fontSize: '13px',
-                            background: placeFilters.rating !== 'all' ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.05)',
-                            border: placeFilters.rating !== 'all' ? '1px solid rgba(255,107,53,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '8px',
-                            color: '#FAFAFA',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <option value="all">Any Rating</option>
-                          <option value="4+">4+ Stars</option>
-                          <option value="4.5+">4.5+ Stars</option>
-                        </select>
+                            {cat}
+                          </button>
+                        ))}
+                        {filterOptions.placeCategories?.length > 0 && <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />}
+                        {['4+', '4.5+'].map(rating => (
+                          <button
+                            key={rating}
+                            onClick={() => setPlaceFilters({...placeFilters, rating: placeFilters.rating === rating ? 'all' : rating})}
+                            style={{
+                              padding: '8px 14px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              background: placeFilters.rating === rating ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: placeFilters.rating === rating ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '100px',
+                              color: placeFilters.rating === rating ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            {rating} ★
+                          </button>
+                        ))}
                       </>
                     )}
 
                     {/* Clear Filters Button */}
                     {((activeCategory === 'concerts' && (concertFilters.genre !== 'all' || concertFilters.day !== 'all' || concertFilters.time !== 'all')) ||
-                      (activeCategory === 'dining' && (diningFilters.type !== 'all' || diningFilters.cuisine !== 'all' || diningFilters.price !== 'all' || diningFilters.rating !== 'all')) ||
+                      (activeCategory === 'dining' && (diningFilters.cuisine !== 'all' || diningFilters.price !== 'all' || diningFilters.rating !== 'all')) ||
                       (activeCategory === 'events' && (eventFilters.category !== 'all' || eventFilters.day !== 'all')) ||
                       (activeCategory === 'locations' && (placeFilters.category !== 'all' || placeFilters.rating !== 'all'))) && (
-                      <button
-                        onClick={() => {
-                          if (activeCategory === 'concerts') setConcertFilters({ genre: 'all', day: 'all', time: 'all' });
-                          if (activeCategory === 'dining') setDiningFilters({ type: 'all', cuisine: 'all', price: 'all', rating: 'all' });
-                          if (activeCategory === 'events') setEventFilters({ category: 'all', day: 'all' });
-                          if (activeCategory === 'locations') setPlaceFilters({ category: 'all', rating: 'all' });
-                        }}
-                        style={{
-                          padding: '8px 12px',
-                          fontSize: '12px',
-                          background: 'transparent',
-                          border: '1px solid rgba(255,255,255,0.2)',
-                          borderRadius: '8px',
-                          color: 'rgba(255,255,255,0.6)',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Clear filters
-                      </button>
+                      <>
+                        <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+                        <button
+                          onClick={() => {
+                            if (activeCategory === 'concerts') setConcertFilters({ genre: 'all', day: 'all', time: 'all' });
+                            if (activeCategory === 'dining') setDiningFilters({ type: 'all', cuisine: 'all', price: 'all', rating: 'all' });
+                            if (activeCategory === 'events') setEventFilters({ category: 'all', day: 'all' });
+                            if (activeCategory === 'locations') setPlaceFilters({ category: 'all', rating: 'all' });
+                          }}
+                          style={{
+                            padding: '8px 14px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            background: 'transparent',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            borderRadius: '100px',
+                            color: 'rgba(255,255,255,0.5)',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          Clear
+                        </button>
+                      </>
                     )}
                   </div>
                 )}
