@@ -22,11 +22,11 @@ const WeekenderApp = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [selectedCityData, setSelectedCityData] = useState(null);
 
-  // Category-specific filters
-  const [concertFilters, setConcertFilters] = useState({ genre: 'all', day: 'all', time: 'all' });
-  const [diningFilters, setDiningFilters] = useState({ type: 'all', cuisine: 'all', price: 'all', rating: 'all' });
-  const [eventFilters, setEventFilters] = useState({ category: 'all', day: 'all' });
-  const [placeFilters, setPlaceFilters] = useState({ category: 'all', rating: 'all' });
+  // Category-specific filters (arrays for multiselect, empty = all)
+  const [concertFilters, setConcertFilters] = useState({ genres: [], days: [], times: [] });
+  const [diningFilters, setDiningFilters] = useState({ cuisines: [], prices: [], ratings: [] });
+  const [eventFilters, setEventFilters] = useState({ categories: [], days: [] });
+  const [placeFilters, setPlaceFilters] = useState({ categories: [], ratings: [] });
 
   const cityInputRef = useRef(null);
   const datePickerRef = useRef(null);
@@ -197,34 +197,19 @@ const WeekenderApp = () => {
   };
 
   // Fetch weather when city and date are selected
-  const fetchWeather = async (cityData, dateOption) => {
-    if (!cityData || !cityData.lat || !cityData.lon) return;
+  // Fetch weather using actual dates from results
+  const fetchWeather = async (cityData, startDate, endDate) => {
+    if (!cityData || !cityData.lat || !cityData.lon || !startDate || !endDate) return;
 
-    // Get weekend dates based on selection (Thu-Sun)
+    // Check if dates are too far out (Open-Meteo supports 16 days)
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    // Thursday is day 4
-    let daysUntilThursday = (4 - dayOfWeek + 7) % 7;
-    if (daysUntilThursday === 0 && today.getHours() >= 12) daysUntilThursday = 7;
+    const start = new Date(startDate);
+    const daysOut = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
 
-    const weeksMap = { 'this-weekend': 0, 'next-weekend': 1, 'two-weeks': 2 };
-    const weeksAhead = weeksMap[dateOption] ?? 0;
-    daysUntilThursday += weeksAhead * 7;
-
-    // Check if date is too far out for forecast (Open-Meteo supports 16 days)
-    if (daysUntilThursday > 12) {
+    if (daysOut > 14) {
       setWeatherData('unavailable');
       return;
     }
-
-    const thursday = new Date(today);
-    thursday.setDate(today.getDate() + daysUntilThursday);
-    const sunday = new Date(thursday);
-    sunday.setDate(thursday.getDate() + 3);
-
-    const formatDate = (d) => d.toISOString().split('T')[0];
-    const startDate = formatDate(thursday);
-    const endDate = formatDate(sunday);
 
     try {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${cityData.lat}&longitude=${cityData.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&temperature_unit=fahrenheit&timezone=auto&start_date=${startDate}&end_date=${endDate}`;
@@ -251,12 +236,12 @@ const WeekenderApp = () => {
     }
   };
 
-  // Fetch weather when search completes
+  // Fetch weather when results arrive (using actual dates from backend)
   useEffect(() => {
-    if (hasResults && selectedCityData && searchDate !== 'custom') {
-      fetchWeather(selectedCityData, searchDate);
+    if (hasResults && selectedCityData && results?.start_date && results?.end_date) {
+      fetchWeather(selectedCityData, results.start_date, results.end_date);
     }
-  }, [hasResults, selectedCityData, searchDate]);
+  }, [hasResults, selectedCityData, results?.start_date, results?.end_date]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -508,26 +493,25 @@ const WeekenderApp = () => {
       };
     }
 
-    // Apply category-specific filters
+    // Apply category-specific filters (arrays - empty means all)
     if (activeCategory === 'concerts') {
       let concerts = results.concerts || [];
-      if (concertFilters.genre !== 'all') {
-        concerts = concerts.filter(c => c.genre === concertFilters.genre);
+      if (concertFilters.genres.length > 0) {
+        concerts = concerts.filter(c => concertFilters.genres.includes(c.genre));
       }
-      if (concertFilters.day !== 'all') {
+      if (concertFilters.days.length > 0) {
         concerts = concerts.filter(c => {
           if (!c.date) return false;
           const day = new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
-          return day === concertFilters.day;
+          return concertFilters.days.includes(day);
         });
       }
-      if (concertFilters.time !== 'all') {
+      if (concertFilters.times.length > 0) {
         concerts = concerts.filter(c => {
           if (!c.time) return true;
           const hour = parseInt(c.time.split(':')[0]);
-          if (concertFilters.time === 'afternoon') return hour < 18;
-          if (concertFilters.time === 'evening') return hour >= 18;
-          return true;
+          const timeOfDay = hour < 18 ? 'afternoon' : 'evening';
+          return concertFilters.times.includes(timeOfDay);
         });
       }
       return { concerts };
@@ -535,26 +519,25 @@ const WeekenderApp = () => {
 
     if (activeCategory === 'dining') {
       let dining = results.dining || [];
-      if (diningFilters.cuisine !== 'all') {
-        dining = dining.filter(d => d.cuisine === diningFilters.cuisine);
+      if (diningFilters.cuisines.length > 0) {
+        dining = dining.filter(d => diningFilters.cuisines.includes(d.cuisine));
       }
-      if (diningFilters.price !== 'all') {
+      if (diningFilters.prices.length > 0) {
         dining = dining.filter(d => {
           const price = d.price_level || d.price || '';
           const dollarCount = (price.match(/\$/g) || []).length;
-          if (diningFilters.price === '$') return dollarCount === 1;
-          if (diningFilters.price === '$$') return dollarCount === 2;
-          if (diningFilters.price === '$$$') return dollarCount === 3;
-          if (diningFilters.price === '$$$$') return dollarCount === 4;
-          return true;
+          const priceKey = '$'.repeat(dollarCount);
+          return diningFilters.prices.includes(priceKey);
         });
       }
-      if (diningFilters.rating !== 'all') {
+      if (diningFilters.ratings.length > 0) {
         dining = dining.filter(d => {
           const rating = parseFloat(d.rating) || 0;
-          if (diningFilters.rating === '4+') return rating >= 4;
-          if (diningFilters.rating === '4.5+') return rating >= 4.5;
-          return true;
+          return diningFilters.ratings.some(r => {
+            if (r === '4+') return rating >= 4;
+            if (r === '4.5+') return rating >= 4.5;
+            return false;
+          });
         });
       }
       return { dining };
@@ -562,14 +545,14 @@ const WeekenderApp = () => {
 
     if (activeCategory === 'events') {
       let events = results.events || [];
-      if (eventFilters.category !== 'all') {
-        events = events.filter(e => e.category === eventFilters.category);
+      if (eventFilters.categories.length > 0) {
+        events = events.filter(e => eventFilters.categories.includes(e.category));
       }
-      if (eventFilters.day !== 'all') {
+      if (eventFilters.days.length > 0) {
         events = events.filter(e => {
           if (!e.date) return false;
           const day = new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
-          return day === eventFilters.day;
+          return eventFilters.days.includes(day);
         });
       }
       return { events };
@@ -577,15 +560,17 @@ const WeekenderApp = () => {
 
     if (activeCategory === 'locations') {
       let locations = results.locations || [];
-      if (placeFilters.category !== 'all') {
-        locations = locations.filter(l => l.category === placeFilters.category);
+      if (placeFilters.categories.length > 0) {
+        locations = locations.filter(l => placeFilters.categories.includes(l.category));
       }
-      if (placeFilters.rating !== 'all') {
+      if (placeFilters.ratings.length > 0) {
         locations = locations.filter(l => {
           const rating = parseFloat(l.rating) || 0;
-          if (placeFilters.rating === '4+') return rating >= 4;
-          if (placeFilters.rating === '4.5+') return rating >= 4.5;
-          return true;
+          return placeFilters.ratings.some(r => {
+            if (r === '4+') return rating >= 4;
+            if (r === '4.5+') return rating >= 4.5;
+            return false;
+          });
         });
       }
       return { locations };
@@ -1273,7 +1258,7 @@ const WeekenderApp = () => {
                   ))}
                 </div>
 
-                {/* Category-Specific Filters */}
+                {/* Category-Specific Filters (Multiselect) */}
                 {activeCategory !== 'all' && (
                   <div style={{
                     display: 'flex',
@@ -1288,15 +1273,18 @@ const WeekenderApp = () => {
                         {filterOptions.genres?.length > 0 && filterOptions.genres.map(genre => (
                           <button
                             key={genre}
-                            onClick={() => setConcertFilters({...concertFilters, genre: concertFilters.genre === genre ? 'all' : genre})}
+                            onClick={() => {
+                              const arr = concertFilters.genres;
+                              setConcertFilters({...concertFilters, genres: arr.includes(genre) ? arr.filter(g => g !== genre) : [...arr, genre]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: concertFilters.genre === genre ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: concertFilters.genre === genre ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: concertFilters.genres.includes(genre) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: concertFilters.genres.includes(genre) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: concertFilters.genre === genre ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: concertFilters.genres.includes(genre) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1308,15 +1296,18 @@ const WeekenderApp = () => {
                         {filterOptions.concertDays?.length > 1 && filterOptions.concertDays.map(day => (
                           <button
                             key={day}
-                            onClick={() => setConcertFilters({...concertFilters, day: concertFilters.day === day ? 'all' : day})}
+                            onClick={() => {
+                              const arr = concertFilters.days;
+                              setConcertFilters({...concertFilters, days: arr.includes(day) ? arr.filter(d => d !== day) : [...arr, day]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: concertFilters.day === day ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: concertFilters.day === day ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: concertFilters.days.includes(day) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: concertFilters.days.includes(day) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: concertFilters.day === day ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: concertFilters.days.includes(day) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1327,15 +1318,19 @@ const WeekenderApp = () => {
                         {['Evening', 'Afternoon'].map(time => (
                           <button
                             key={time}
-                            onClick={() => setConcertFilters({...concertFilters, time: concertFilters.time === time.toLowerCase() ? 'all' : time.toLowerCase()})}
+                            onClick={() => {
+                              const arr = concertFilters.times;
+                              const t = time.toLowerCase();
+                              setConcertFilters({...concertFilters, times: arr.includes(t) ? arr.filter(x => x !== t) : [...arr, t]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: concertFilters.time === time.toLowerCase() ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: concertFilters.time === time.toLowerCase() ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: concertFilters.times.includes(time.toLowerCase()) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: concertFilters.times.includes(time.toLowerCase()) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: concertFilters.time === time.toLowerCase() ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: concertFilters.times.includes(time.toLowerCase()) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1346,21 +1341,24 @@ const WeekenderApp = () => {
                       </>
                     )}
 
-                    {/* Dining Filters - Show all cuisine types as pills */}
+                    {/* Dining Filters - Show all cuisine types as pills (multiselect) */}
                     {activeCategory === 'dining' && (
                       <>
                         {filterOptions.cuisines?.length > 0 && filterOptions.cuisines.map(cuisine => (
                           <button
                             key={cuisine}
-                            onClick={() => setDiningFilters({...diningFilters, cuisine: diningFilters.cuisine === cuisine ? 'all' : cuisine})}
+                            onClick={() => {
+                              const arr = diningFilters.cuisines;
+                              setDiningFilters({...diningFilters, cuisines: arr.includes(cuisine) ? arr.filter(c => c !== cuisine) : [...arr, cuisine]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: diningFilters.cuisine === cuisine ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: diningFilters.cuisine === cuisine ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: diningFilters.cuisines.includes(cuisine) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: diningFilters.cuisines.includes(cuisine) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: diningFilters.cuisine === cuisine ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: diningFilters.cuisines.includes(cuisine) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1372,15 +1370,18 @@ const WeekenderApp = () => {
                         {['$', '$$', '$$$', '$$$$'].map(price => (
                           <button
                             key={price}
-                            onClick={() => setDiningFilters({...diningFilters, price: diningFilters.price === price ? 'all' : price})}
+                            onClick={() => {
+                              const arr = diningFilters.prices;
+                              setDiningFilters({...diningFilters, prices: arr.includes(price) ? arr.filter(p => p !== price) : [...arr, price]});
+                            }}
                             style={{
                               padding: '8px 14px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: diningFilters.price === price ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: diningFilters.price === price ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: diningFilters.prices.includes(price) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: diningFilters.prices.includes(price) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: diningFilters.price === price ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: diningFilters.prices.includes(price) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1392,15 +1393,18 @@ const WeekenderApp = () => {
                         {['4+', '4.5+'].map(rating => (
                           <button
                             key={rating}
-                            onClick={() => setDiningFilters({...diningFilters, rating: diningFilters.rating === rating ? 'all' : rating})}
+                            onClick={() => {
+                              const arr = diningFilters.ratings;
+                              setDiningFilters({...diningFilters, ratings: arr.includes(rating) ? arr.filter(r => r !== rating) : [...arr, rating]});
+                            }}
                             style={{
                               padding: '8px 14px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: diningFilters.rating === rating ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: diningFilters.rating === rating ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: diningFilters.ratings.includes(rating) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: diningFilters.ratings.includes(rating) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: diningFilters.rating === rating ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: diningFilters.ratings.includes(rating) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1417,15 +1421,18 @@ const WeekenderApp = () => {
                         {filterOptions.eventCategories?.length > 0 && filterOptions.eventCategories.map(cat => (
                           <button
                             key={cat}
-                            onClick={() => setEventFilters({...eventFilters, category: eventFilters.category === cat ? 'all' : cat})}
+                            onClick={() => {
+                              const arr = eventFilters.categories;
+                              setEventFilters({...eventFilters, categories: arr.includes(cat) ? arr.filter(c => c !== cat) : [...arr, cat]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: eventFilters.category === cat ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: eventFilters.category === cat ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: eventFilters.categories.includes(cat) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: eventFilters.categories.includes(cat) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: eventFilters.category === cat ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: eventFilters.categories.includes(cat) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1437,15 +1444,18 @@ const WeekenderApp = () => {
                         {filterOptions.eventDays?.length > 1 && filterOptions.eventDays.map(day => (
                           <button
                             key={day}
-                            onClick={() => setEventFilters({...eventFilters, day: eventFilters.day === day ? 'all' : day})}
+                            onClick={() => {
+                              const arr = eventFilters.days;
+                              setEventFilters({...eventFilters, days: arr.includes(day) ? arr.filter(d => d !== day) : [...arr, day]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: eventFilters.day === day ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: eventFilters.day === day ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: eventFilters.days.includes(day) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: eventFilters.days.includes(day) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: eventFilters.day === day ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: eventFilters.days.includes(day) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1462,15 +1472,18 @@ const WeekenderApp = () => {
                         {filterOptions.placeCategories?.length > 0 && filterOptions.placeCategories.map(cat => (
                           <button
                             key={cat}
-                            onClick={() => setPlaceFilters({...placeFilters, category: placeFilters.category === cat ? 'all' : cat})}
+                            onClick={() => {
+                              const arr = placeFilters.categories;
+                              setPlaceFilters({...placeFilters, categories: arr.includes(cat) ? arr.filter(c => c !== cat) : [...arr, cat]});
+                            }}
                             style={{
                               padding: '8px 16px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: placeFilters.category === cat ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: placeFilters.category === cat ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: placeFilters.categories.includes(cat) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: placeFilters.categories.includes(cat) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: placeFilters.category === cat ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: placeFilters.categories.includes(cat) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1482,15 +1495,18 @@ const WeekenderApp = () => {
                         {['4+', '4.5+'].map(rating => (
                           <button
                             key={rating}
-                            onClick={() => setPlaceFilters({...placeFilters, rating: placeFilters.rating === rating ? 'all' : rating})}
+                            onClick={() => {
+                              const arr = placeFilters.ratings;
+                              setPlaceFilters({...placeFilters, ratings: arr.includes(rating) ? arr.filter(r => r !== rating) : [...arr, rating]});
+                            }}
                             style={{
                               padding: '8px 14px',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: placeFilters.rating === rating ? 'rgba(255,107,53,0.2)' : 'transparent',
-                              border: placeFilters.rating === rating ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                              background: placeFilters.ratings.includes(rating) ? 'rgba(255,107,53,0.2)' : 'transparent',
+                              border: placeFilters.ratings.includes(rating) ? '1px solid rgba(255,107,53,0.5)' : '1px solid rgba(255,255,255,0.12)',
                               borderRadius: '100px',
-                              color: placeFilters.rating === rating ? '#FF6B35' : 'rgba(255,255,255,0.6)',
+                              color: placeFilters.ratings.includes(rating) ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                             }}
@@ -1502,18 +1518,18 @@ const WeekenderApp = () => {
                     )}
 
                     {/* Clear Filters Button */}
-                    {((activeCategory === 'concerts' && (concertFilters.genre !== 'all' || concertFilters.day !== 'all' || concertFilters.time !== 'all')) ||
-                      (activeCategory === 'dining' && (diningFilters.cuisine !== 'all' || diningFilters.price !== 'all' || diningFilters.rating !== 'all')) ||
-                      (activeCategory === 'events' && (eventFilters.category !== 'all' || eventFilters.day !== 'all')) ||
-                      (activeCategory === 'locations' && (placeFilters.category !== 'all' || placeFilters.rating !== 'all'))) && (
+                    {((activeCategory === 'concerts' && (concertFilters.genres.length > 0 || concertFilters.days.length > 0 || concertFilters.times.length > 0)) ||
+                      (activeCategory === 'dining' && (diningFilters.cuisines.length > 0 || diningFilters.prices.length > 0 || diningFilters.ratings.length > 0)) ||
+                      (activeCategory === 'events' && (eventFilters.categories.length > 0 || eventFilters.days.length > 0)) ||
+                      (activeCategory === 'locations' && (placeFilters.categories.length > 0 || placeFilters.ratings.length > 0))) && (
                       <>
                         <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
                         <button
                           onClick={() => {
-                            if (activeCategory === 'concerts') setConcertFilters({ genre: 'all', day: 'all', time: 'all' });
-                            if (activeCategory === 'dining') setDiningFilters({ type: 'all', cuisine: 'all', price: 'all', rating: 'all' });
-                            if (activeCategory === 'events') setEventFilters({ category: 'all', day: 'all' });
-                            if (activeCategory === 'locations') setPlaceFilters({ category: 'all', rating: 'all' });
+                            if (activeCategory === 'concerts') setConcertFilters({ genres: [], days: [], times: [] });
+                            if (activeCategory === 'dining') setDiningFilters({ cuisines: [], prices: [], ratings: [] });
+                            if (activeCategory === 'events') setEventFilters({ categories: [], days: [] });
+                            if (activeCategory === 'locations') setPlaceFilters({ categories: [], ratings: [] });
                           }}
                           style={{
                             padding: '8px 14px',
